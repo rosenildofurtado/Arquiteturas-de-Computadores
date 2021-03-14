@@ -15,7 +15,7 @@ main: 	addi $2, $0, 5
 	mflo $13
 somaM:	add $12, $13, $12 # soma segundos com os minutos convertidos
 	addi $11, $0, 3600 # Vai guardar o valor das multiplicações
-	mult $11, $10 # multiplica 3600*hh
+	mult $11, $8 # multiplica 3600*hh
 	mflo $13
 somaH:	add $12, $13, $12 # soma segundos com as horas convertidas
 	addi $2, $0, 1
