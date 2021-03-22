@@ -26,14 +26,12 @@ divide:	div $16, $13
 	syscall
 	
 	addi $17, $0, 0 # penalidade
-	
 	slt $18, $10, $13
 	bne $18, $0, fim
 	div $10, $13
 	mflo $19
 	mul $17, $19, $12
-	sub $25, $24, $17
-
+	sub $24, $24, $17
 
 fim:	addi $4, $17, 0
 	addi $2, $0, 1
@@ -41,7 +39,7 @@ fim:	addi $4, $17, 0
 	addi $4, $0, '\n'
 	addi $2, $0, 11
 	syscall
-	addi $4, $25, 0
+	addi $4, $24, 0
 	addi $2, $0, 1
 	syscall
 		
