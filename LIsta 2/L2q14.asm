@@ -50,22 +50,17 @@ impD:	addi $2, $0, 11
 	
 	
 	addi $4, $8, 48 
-	bne $23, $0, impU 
-testaU: bne $15, $0, flagU
-	addi $4, $0, 32 # constante 32
-	j impU
-flagU:	addi $23, $0, 1 # constante 1
 impU:	addi $2, $0, 11
 	syscall
 
-	bne $24, $0, fim # termina se imprimiu o segundo número
+	bne $24, $0, fim # termina se imprimiu o segundo numero
 	addi $4, $0, ',' # constante ,
 	addi $2, $0, 11
 	syscall
-	addi $8, $25, 0 # atualiza $8 com o segundo número
+	addi $8, $25, 0 # atualiza $8 com o segundo numero
 	addi $24, $0, 1 
 	addi $23, $0, 0 
-	j inicio # volta para imprimir o segundo número
+	j inicio # volta para imprimir o segundo numero
 		
 fim:	addi $2, $0, 10
 	syscall
