@@ -20,7 +20,7 @@ if:	slt $14, $9, $12
 	addi $10, $10, -1 # ano - 1
 	j endif
 else:	subi $9, $9, 2
-	
+	addi $12, $0, 100 # constante 100	
 endif:	div $10, $12
 j:	mflo $15
 k:	mfhi $16
@@ -44,7 +44,7 @@ k:	mfhi $16
 	add $25, $25, $22
 	add $25, $25, $23
 	add $25, $25, $24
-	addi $25, $25, -2
+	# addi $25, $25, -2
 	div $25, $20
 h:	mfhi $25
 
@@ -90,7 +90,6 @@ h:	mfhi $25
 	addi $10, $0, 'a'
 	addi $11, $0, 'b' # sabado
 	
-
 dia:	addi $4, $9, 0
 	addi $2, $0, 11
 	syscall

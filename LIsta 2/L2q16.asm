@@ -1,0 +1,58 @@
+.text
+main: 	addi $2, $0, 5
+	syscall
+	add $8, $0, $2 # Guarda o numero digitado em $8
+	addi $9, $0, 100000000 # constante 100000000
+	addi $10, $0, 10000000 # constante 10000000
+	addi $11, $0, 1000000 # constante 1000000
+	addi $12, $0, 100000 # constante 100000
+	addi $13, $0, 10000 # constante 10000
+	addi $14, $0, 1000 # constante 1000
+	addi $15, $0, 100 # constante 100
+	addi $16, $0, 10 # constante 10
+	addi $17, $0, 11 # constante 11
+	addi $18, $0, 15 # constante 15
+	
+	
+inicio:	div $8, $9
+	mflo $19 # guarda o algarismo
+	
+	addi $4, $15, 48 
+	bne $23, $0, impM 
+testaM: bne $15, $0, flagM
+	addi $4, $0, 32 # constante 32
+	j impM
+flagM:	addi $23, $0, 1 # constante 1
+impM:	addi $2, $0, 11
+	syscall
+	
+	div $8, $10
+	mfhi $8 # guarda o resto
+	mflo $15 # guarda o algarismo
+	addi $4, $15, 48 
+	bne $23, $0, impC 
+testaC: bne $15, $0, flagC
+	addi $4, $0, 32 # constante 32
+	j impC
+flagC:	addi $23, $0, 1 # constante 1
+impC:	addi $2, $0, 11
+	syscall
+	
+	div $8, $11
+	mfhi $8 # guarda o resto
+	mflo $15 # guarda o algarismo
+	addi $4, $15, 48 
+	bne $23, $0, impD 
+testaD: bne $15, $0, flagD
+	addi $4, $0, 32 # constante 32
+	j impD
+flagD:	addi $23, $0, 1 # constante 1
+impD:	addi $2, $0, 11
+	syscall
+	
+	addi $4, $8, 48 
+impU:	addi $2, $0, 11
+	syscall
+	
+fim:	addi $2, $0, 10
+	syscall
