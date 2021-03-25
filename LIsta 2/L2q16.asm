@@ -89,7 +89,7 @@ cpf8:	div $8, $16
 cpf9:	mul $20, $8, $18 # multiplica digito 9 por 3
 	add $21, $21, $20 # soma para o calculo do segundo digito
 	addi $18, $18, -1
-	mul $22, $19, $18 # # multiplica digito 9 por 2
+	mul $22, $8, $18 # # multiplica digito 9 por 2
 	add $23, $23, $22 # soma para o calculo do primeiro digito
 	
 cpf10:	div $23, $17 # soma / 11
