@@ -31,7 +31,10 @@ divide:	div $16, $13
 	div $10, $13
 	mflo $19
 	mul $17, $19, $12
-	sub $24, $24, $17
+	sub $23, $24, $17
+	slt $22, $24, $17
+	beq $22, $0, fim
+	addi $23, $0, 0
 
 fim:	addi $4, $17, 0
 	addi $2, $0, 1
@@ -39,7 +42,7 @@ fim:	addi $4, $17, 0
 	addi $4, $0, '\n'
 	addi $2, $0, 11
 	syscall
-	addi $4, $24, 0
+	addi $4, $23, 0
 	addi $2, $0, 1
 	syscall
 		
