@@ -3,8 +3,9 @@ main: 	addi $2, $0, 5
 	syscall
 	add $8, $0, $2 # n
 	addi $9, $0, 1 # a
-	addi $10, $0, 1 # b
-	addi $11, $8, -2 # c
+	addi $10, $0, 2 # b
+	sub $11, $8, $9
+c:	sub $11, $11, $10
 	addi $12, $0, 0 # a + b + c
 	addi $13, $0, 0 # a2
 	addi $14, $0, 0 # b2
@@ -15,9 +16,19 @@ main: 	addi $2, $0, 5
 	addi $18, $0, 3 # constante 3
 	div $8, $18
 	mflo $18 # n/3
-		
-forA:	beq $9, $18, naoTem
-forB:	beq $10, $17, fimForB
+	
+forA:	slt $24, $9, $10	
+	beq $24, $0, naoTem
+a2:	mul $13, $9, $9
+	addi $10, $9, 1
+forB:	slt $25, $10, $11
+	beq $25, $0, fimForB
+b2:	mul $14, $10, $10
+	sub $11, $8, $9
+	sub $11, $11, $10
+c2:	mul $15, $11, $11
+	add $16, $13, $14
+	beq $16, $15, sai
 	
 	addi $10, $10, 1
 	j forB
