@@ -13,21 +13,26 @@ main: 	addi $2, $0, 5
 	addi $8, $9, 0
 	addi $9, $25, 0
 ok:	slt $11, $8, $10 # Testa se a<2 e inicia o contador
+	add $8, $8, $11
 	addi $12, $0, 3 # constate 3
+	not $13, $8
+	andi $14, $13, 1
+	add $8, $8, $14
 	
-forA:	slt $25, $8, $9
-	bne $25, $0, sai
-	addi $13, $10, 1
-forB:	beq $25, $11, fimForB
-	
-	
-	addi $9, $9, 1
-	addi $11, $11, 1
+forA:	slt $25, $8, $9 
+	beq $25, $0, sai # enquanto a<b
+	srl $15, $8, 1
+forB:	slt $24, $12, $15 
+	beq $24, $0, fimForB
+	div $8, $12
+	mfhi $16
+	beq $16, $0, prox
+	addi $12, $12, 2
 	j forB
-	
-fimForB: addi $10, $10, 1
-	addi $25, $10, 1
-	addi $11, $0, 0 # contador colunas
+		
+fimForB: addi $11, $11, 1
+prox: 	addi $12, $0, 3 # constate 3
+	addi $8, $8, 2
 	
 	j forA
 sai:	addi $4, $0, 'q'
