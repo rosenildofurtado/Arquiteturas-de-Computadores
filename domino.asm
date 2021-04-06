@@ -1,47 +1,95 @@
 .text
-main: 	addi $8, $0, 0 # contador i
-	addi $9, $0, 0 # contador j
-	addi $10, $0, 7 # constante 7
-	addi $13, $0, 128 # constante 64
-	addi $14, $0, 64 # constante 32
-	lui $11, 0x00fa
-	lui $23, 0x1001
-	addi $12, $0, 0x00006600 # verde escuro
-	
-	
-tela:	beq $8, $14, fimTela
-	addi $9, $0, 0 # contador j
-telaj:	beq $9, $13, fimTela
-	sw $12, 0($23)
-	addi $23, $23, 4
-	addi $9, $9, 1
-	j telaj
-telai:	addi $8, $8, 1
-	j tela
+main: 	
+	addi $4, $0, 126
+	addi $5, $0, 256
+	addi $6, $0, 0x00006600
+	jal bgColor
+	addi $4, $0, 0
+	addi $5, $0, 0
+	addi $6, $0, 256
+	addi $7, $0, 128
+	addi $19, $0, 0x00ff0000
 
-# Rotina para desenhar um reangulo
+			
+fimTela: jal retang
+
+	
+fim:	addi $2, $0, 10
+	syscall
+	
+# ========= ROTINAS ============================
+
+#----------------BGCOLOR------------------
+# Rotina para preencher a cor de fundo
+# Entradas:	$4 L
+#		$5 C
+#		$6 cor
+# Usa (sem preservar): $25
+bgColor: addi $25, $0, 0x10010000
+	addi $24, $0, 0
+	addi $23, $0, 0
+forbgi:	beq $23, $5, fimBgi
+	addi $24, $0, 0
+forbgj:	beq $24, $4, contbgi
+	sw $6, 0($25)
+	addi $25, $25, 4
+	addi $24, $24, 1
+	j forbgj
+contbgi: addi $23, $23, 1
+	j forbgi
+fimBgi: jr $31
+
+#----------------ENDERECO-----------------
+# Rotina para calcular um endereco
+# Entradas:	$4 end0
+#		$5 l
+#		$6 L
+#		$7 c
+# Saida:	$2
+# Usa (sem preservar): $25
+endPxy:	mul $25, $5, $6 # l*L
+	add $25, $25, $7 # l*L+c
+	sll $25, $25, 2 # (l*L+c)*4
+	add $2, $25, $4 # Retorna a soma com o end0
+fimPxy:	jr $31 
+
+
+#---------------RETANGULO-------------
+# Rotina para desenhar um retangulo
 # Entrada: $4, $5, $6, $7, onde:
 #	$4 = px, $5=py, $6=tamx e $7=tamy
 # Usa sem preservar
 	
-retang:	add $22, $0, $4
-	add $20, $0, $5
-	add $24, $22, $6
-	add $25, $20, $7
-	lui $21, $0, 0x00ff
-	add $21, $21, $22 
-	addi $19, $0, 0x00101010 
-fori:	beq $22, $24, fimfor 
-	add $20, $0, $5
-forj:	beq $20, $25, fimj
-	beq $
-	sw $12, 0($23)
-	addi $23, $23, 4
-	addi $9, $9, 1
+retang:	addi $17, $31, 0
+	addi $24, $0, 256 
+	addi $23, $0, 0x00006600
+	add $22, $0, $5 # j=$5
+	add $21, $0, $4 # i=$4
+	add $16, $0, $4 # i=$4
+	add $20, $7, $5 # py+tamy
+	add $19, $6, $4 # px+tamx
+	lui $4, 0x1001
+	addi $6, $0, 256
+	
+fori:	slt $18, $22, $20
+	beq $18, $0, fimFori
+	addi $5, $22,0
+	addi $21, $16, 0
+forj:	slt $18, $21, $19
+	beq $18, $0, conti
+	addi $7, $21, 0
+	
+	jal endPxy
+	sw $23, 0($2)
+	
+	addi $21, $21, 1
+	j forj
+conti:	addi $22, $22, 1
+	j fori
+fimFori: addi $31, $17, 0
+	jr $31
 
-	 
-fimfor:	jr $31
-fimTela: j fim
+
 	
 	
 	
@@ -130,5 +178,4 @@ SE:	addi $4, $0, 'S'
 	addi $13, $13, 1
 	j while
 sai:
-fim:	addi $2, $0, 10
-	syscall
+
