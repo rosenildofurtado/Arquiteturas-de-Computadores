@@ -11,14 +11,36 @@ main: 	addi $8, $0, 0 # contador i
 	
 tela:	beq $8, $14, fimTela
 	addi $9, $0, 0 # contador j
-telaj:	beq $9, $13, tela
+telaj:	beq $9, $13, fimTela
 	sw $12, 0($23)
 	addi $23, $23, 4
 	addi $9, $9, 1
 	j telaj
 telai:	addi $8, $8, 1
 	j tela
+
+# Rotina para desenhar um reangulo
+# Entrada: $4, $5, $6, $7, onde:
+#	$4 = px, $5=py, $6=tamx e $7=tamy
+# Usa sem preservar
 	
+retang:	add $22, $0, $4
+	add $20, $0, $5
+	add $24, $22, $6
+	add $25, $20, $7
+	lui $21, $0, 0x00ff
+	add $21, $21, $22 
+	addi $19, $0, 0x00101010 
+fori:	beq $22, $24, fimfor 
+	add $20, $0, $5
+forj:	beq $20, $25, fimj
+	beq $
+	sw $12, 0($23)
+	addi $23, $23, 4
+	addi $9, $9, 1
+
+	 
+fimfor:	jr $31
 fimTela: j fim
 	
 	
