@@ -1,18 +1,22 @@
 .text
-main: 	
-	addi $4, $0, 126
+main: 	addi $4, $0, 128
 	addi $5, $0, 256
 	addi $6, $0, 0x00006600
 	jal bgColor
-	addi $4, $0, 0
-	addi $5, $0, 0
-	addi $6, $0, 256
-	addi $7, $0, 128
-	addi $19, $0, 0x00ff0000
-
-			
+	
+	addi $4, $0, 50
+	addi $5, $0, 100
+	addi $6, $0, 12
+	addi $7, $0, 24
+	addi $8, $0, 0x00101010
 fimTela: jal retang
-
+	
+	addi $4, $0, 100
+	addi $5, $0, 50
+	addi $6, $0, 30
+	addi $7, $0, 30
+	addi $8, $0, 0x00ff1010
+	jal bordaRet
 	
 fim:	addi $2, $0, 10
 	syscall
@@ -78,10 +82,8 @@ fori:	slt $18, $22, $20
 forj:	slt $18, $21, $19
 	beq $18, $0, conti
 	addi $7, $21, 0
-	
 	jal endPxy
-	sw $23, 0($2)
-	
+	sw $8, 0($2)
 	addi $21, $21, 1
 	j forj
 conti:	addi $22, $22, 1
@@ -90,92 +92,45 @@ fimFori: addi $31, $17, 0
 	jr $31
 
 
+#---------------BORDARET-------------
+# Rotina para desenhar a borda de um retangulo
+# Entrada: $4, $5, $6, $7, $8, onde:
+#	$4 = px, $5=py, $6=tamx, $7=tamy e $8 cor
+# Usa sem preservar
 	
+bordaRet: addi $17, $31, 0
+	addi $24, $0, 256 
+	add $22, $0, $5 # j=$5
+	add $21, $0, $4 # i=$4
+	add $16, $0, $4 # i=$4
+	add $20, $7, $5 # py+tamy
+	add $19, $6, $4 # px+tamx
+	lui $4, 0x1001
+	addi $6, $0, 256
 	
+	addi $5, $22, 0
+bordi:	beq $21, $19, fimBordi
+	addi $7, $21, 0
+	jal endPxy
+	sw $8, 0($2)
+	addi $5, $20, 0
+	jal endPxy
+	sw $8, 0($2)
+	addi $5, $22 , 0
+contBi:	addi $21, $21, 1
+	j bordi
 	
+fimBordi: addi $7, $16, 0
 
-
-
-	addi $2, $0, 5
-	syscall
-	add $8, $0, $2 # k
-	addi $2, $0, 5
-	syscall
-	add $9, $0, $2 # px
-	addi $2, $0, 5
-	syscall
-	add $10, $0, $2 # py	
-	addi $11, $0, -104 # constante -104
-	addi $12, $0, 104 # constante 104
-	addi $13, $0, 0 # contador
-	
-while:	beq $13, $8, fim
-	addi $2, $0, 5
-	syscall
-	add $14, $0, $2 # px
-	addi $2, $0, 5
-	syscall
-	add $15, $0, $2 # px
-	beq $14, $9, DV
-	beq $15, $10, DV
-	slt $25, $14, $9
-	beq $25, $0, testey
-	slt $24, $15, $10
-	beq $24, $0, NO
-	j SO
-	
-testey: slt $24, $15, $10
-	beq $24, $0, NE
-	j SE
-	
-DV:	addi $4, $0, 'D'
-	addi $2, $0, 11
-	syscall
-	addi $4, $0, 'V'
-	syscall
-	addi $4, $0, ' '
-	syscall
-	addi $13, $13, 1
-	j while
-	
-NO:	addi $4, $0, 'N'
-	addi $2, $0, 11
-	syscall
-	addi $4, $0, 'O'
-	syscall
-	addi $4, $0, ' '
-	syscall
-	addi $13, $13, 1
-	j while
-	
-NE:	addi $4, $0, 'N'
-	addi $2, $0, 11
-	syscall
-	addi $4, $0, 'E'
-	syscall
-	addi $4, $0, ' '
-	syscall
-	addi $13, $13, 1
-	j while
-	
-SO:	addi $4, $0, 'S'
-	addi $2, $0, 11
-	syscall
-	addi $4, $0, 'O'
-	syscall
-	addi $4, $0, ' '
-	syscall
-	addi $13, $13, 1
-	j while
-	
-SE:	addi $4, $0, 'S'
-	addi $2, $0, 11
-	syscall
-	addi $4, $0, 'E'
-	syscall
-	addi $4, $0, ' '
-	syscall
-	addi $13, $13, 1
-	j while
-sai:
-
+bordj:	beq $22, $20, fimBordj
+	addi $5, $22, 0
+	jal endPxy
+	sw $8, 0($2)
+	addi $7, $19, 0
+	jal endPxy
+	sw $8, 0($2)
+	addi $7, $16, 0
+	addi $22, $22, 1
+	j bordj
+fimBordj: addi $31, $17, 0
+	jr $31
