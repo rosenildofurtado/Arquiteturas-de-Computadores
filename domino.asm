@@ -11,11 +11,11 @@ main: 	addi $4, $0, 128
 	addi $8, $0, 0x00101010
 fimTela: jal retang
 	
-	addi $4, $0, 100
-	addi $5, $0, 50
-	addi $6, $0, 30
-	addi $7, $0, 30
-	addi $8, $0, 0x00ff1010
+	addi $4, $0, 50
+	addi $5, $0, 100
+	addi $6, $0, 12
+	addi $7, $0, 24
+	add $8, $0, $0
 	jal bordaRet
 	
 fim:	addi $2, $0, 10
@@ -65,8 +65,6 @@ fimPxy:	jr $31
 # Usa sem preservar
 	
 retang:	addi $17, $31, 0
-	addi $24, $0, 256 
-	addi $23, $0, 0x00006600
 	add $22, $0, $5 # j=$5
 	add $21, $0, $4 # i=$4
 	add $16, $0, $4 # i=$4
@@ -99,7 +97,6 @@ fimFori: addi $31, $17, 0
 # Usa sem preservar
 	
 bordaRet: addi $17, $31, 0
-	addi $24, $0, 256 
 	add $22, $0, $5 # j=$5
 	add $21, $0, $4 # i=$4
 	add $16, $0, $4 # i=$4
@@ -107,13 +104,15 @@ bordaRet: addi $17, $31, 0
 	add $19, $6, $4 # px+tamx
 	lui $4, 0x1001
 	addi $6, $0, 256
+	addi $23, $19, -1
+	addi $24, $20, -1
 	
 	addi $5, $22, 0
 bordi:	beq $21, $19, fimBordi
 	addi $7, $21, 0
 	jal endPxy
 	sw $8, 0($2)
-	addi $5, $20, 0
+	addi $5, $24, 0
 	jal endPxy
 	sw $8, 0($2)
 	addi $5, $22 , 0
@@ -126,7 +125,7 @@ bordj:	beq $22, $20, fimBordj
 	addi $5, $22, 0
 	jal endPxy
 	sw $8, 0($2)
-	addi $7, $19, 0
+	addi $7, $23, 0
 	jal endPxy
 	sw $8, 0($2)
 	addi $7, $16, 0
