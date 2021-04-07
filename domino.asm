@@ -28,7 +28,7 @@ fim:	addi $2, $0, 10
 # Entradas:	$4 L
 #		$5 C
 #		$6 cor
-# Usa (sem preservar): $25
+# Usa (sem preservar): $23 ao $25
 bgColor: addi $25, $0, 0x10010000
 	addi $24, $0, 0
 	addi $23, $0, 0
@@ -62,7 +62,7 @@ fimPxy:	jr $31
 # Rotina para desenhar um retangulo
 # Entrada: $4, $5, $6, $7, onde:
 #	$4 = px, $5=py, $6=tamx e $7=tamy
-# Usa sem preservar
+# Usa sem preservar  $17 ao $25
 	
 retang:	addi $17, $31, 0
 	add $22, $0, $5 # j=$5
@@ -94,7 +94,7 @@ fimFori: addi $31, $17, 0
 # Rotina para desenhar a borda de um retangulo
 # Entrada: $4, $5, $6, $7, $8, onde:
 #	$4 = px, $5=py, $6=tamx, $7=tamy e $8 cor
-# Usa sem preservar
+# Usa sem preservar $17 ao $25
 	
 bordaRet: addi $17, $31, 0
 	add $22, $0, $5 # j=$5
@@ -133,3 +133,10 @@ bordj:	beq $22, $20, fimBordj
 	j bordj
 fimBordj: addi $31, $17, 0
 	jr $31
+	
+#-------------- NUMEROS-------------
+#-----------------N0----------------
+# Rotina para desenhar o numero 0
+# Entrada: $4, $5, $6, $7, $8, onde:
+#	$4 = px, $5=py, $6=numero, $7=rotacao e $8 cor
+# Usa sem preservar
