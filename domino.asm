@@ -12,8 +12,11 @@
 	.word -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 # pecas do computador b
 	.word -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 # pecas do computador c
 .data 0x10090200
-	.word 0x00006600 0x00ffffff 0x00888888 0x00880000 0x00ffff00 # cores
-	.word 0x00008800 0x00000088 0x00ffa500 0x00ff0000 0x0000ff00 # cores
+	.word 0x00006600 0x00888888 0x00ffffff 0x00ffa500 0x00000088 
+# cores:      verdeFundo,  cinza,    branco, 	laranja,   azulEsc,	
+
+	.word 0x00008800 0x00ffff00 0x00880000 0x00ff0000 0x0000ff00 
+# cores:	verdEsc,  amarelo,   vermEsc,  	vermelho,   verde
 .data 0x10090300
 	.word 256 512 20 40 4 # Dimensoes
 	
@@ -27,32 +30,6 @@ main:
 	addi $6, $0, 0x10090200 # cor do background
 	lw $6, 0($6)
 	jal bgColor # Background verde
-		
-	addi $4, $0, 99
-	addi $5, $0, 101
-	addi $6, $0, 20
-	addi $7, $0, 40
-	add $8, $0, $0
-	jal bordaRet
-	
-	addi $4, $0, 100
-	addi $5, $0, 100
-	addi $6, $0, 20
-	addi $7, $0, 40
-	addi $8, $0, 0x00888888
-fimTela: jal retang
-
-	addi $4, $0, 100
-	addi $5, $0, 100
-	addi $6, $0, 0x00880000
-	addi $7, $0, 0
-	jal N6
-	
-	addi $4, $0, 100
-	addi $5, $0, 120
-	addi $6, $0, 0x00ffff00
-	addi $7, $0, 0
-	jal N5
 	
 	addi $4, $0, 100
 	addi $5, $0, 5
@@ -81,6 +58,39 @@ fimTela: jal retang
 	addi $4, $0, 280
 	addi $5, $0, 5
 	jal num7
+		
+	addi $4, $0, 99
+	addi $5, $0, 101
+	addi $6, $0, 20
+	addi $7, $0, 40
+	add $8, $0, $0
+	jal bordaRet
+	
+	addi $4, $0, 100
+	addi $5, $0, 100
+	addi $6, $0, 20
+	addi $7, $0, 40
+	addi $8, $0, 0x00888888
+fimTela: jal retang
+
+	addi $4, $0, 100
+	addi $5, $0, 100
+	addi $7, $0, 0
+	jal N4
+	addi $4, $0, 100
+	addi $5, $0, 120
+	addi $7, $0, 0
+	jal N6
+	
+	addi $4, $0, 236
+	addi $5, $0, 108
+	addi $6, $0, 2
+	addi $7, $0, 0x10090060
+	jal peca
+	
+	
+	
+	
 	
 fim:	addi $2, $0, 10
 	syscall
@@ -130,6 +140,153 @@ forbgj:	beq $24, $4, contbgi
 contbgi: addi $23, $23, 1
 	j forbgi
 fimBgi: jr $31
+
+#-----------------PECA--------------------
+# Rotina para desenhar a peca
+# Entradas:	$4 px
+#		$5 py
+#		$6 girar
+#		$7 endereco da peca
+# Saida:	
+# Usa (sem preservar): $8, $9, $11, $12, $13
+peca:	addi $8, $0, 0x10090200	
+	lw $8, 4($8)
+	addi $9, $4, 0	
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $5, 0
+	jal insPilha
+	addi $4, $9, 0
+	jal insPilha	
+	lw $11, 0($7)
+	lw $12, 4($7)
+	addi $13, $6, 0
+	addi $6, $0, 0x10090308	
+	lw $6, 0($6)
+	addi $7, $6, 0
+	jal retang
+
+	addi $4, $4, -19	
+	addi $5, $5, -19	
+	addi $6, $0, 1
+	andi $7, $13, 1
+	beq $11, $0, pxNum
+	beq $11, $6, mostra1
+	addi $6, $6, 1
+	beq $11, $6, mostra2
+	addi $6, $6, 1
+	beq $11, $6, mostra3
+	addi $6, $6, 1
+	beq $11, $6, mostra4
+	addi $6, $6, 1
+	beq $11, $6, mostra5
+	addi $6, $6, 1
+	beq $11, $6, mostra6
+	j pxNum
+mostra1: addi $6, $0, 0x10090200	
+	lw $6, 8($6)
+	jal N1
+	slt $4, $11, $0
+	bne $4, $0, fimPeca
+	j pxNum
+mostra2: addi $6, $0, 0x10090200	
+	lw $6, 12($6)
+	jal N2
+	slt $4, $11, $0
+	bne $4, $0, fimPeca
+	j pxNum
+mostra3: addi $6, $0, 0x10090200	
+	lw $6, 16($6)
+	jal N3
+	slt $4, $11, $0
+	bne $4, $0, fimPeca
+	j pxNum
+mostra4: addi $6, $0, 0x10090200	
+	lw $6, 20($6)
+	jal N4
+	slt $4, $11, $0
+	bne $4, $0, fimPeca
+	j pxNum
+mostra5: addi $6, $0, 0x10090200	
+	lw $6, 24($6)
+	jal N5
+	slt $4, $11, $0
+	bne $4, $0, fimPeca
+	j pxNum
+mostra6: addi $6, $0, 0x10090200	
+	lw $6, 28($6)
+	jal N6
+	slt $4, $11, $0
+	bne $4, $0, fimPeca
+	
+pxNum:	jal retPilha
+	addi $4, $3, 0
+	jal retPilha
+	addi $5, $3, 20
+	addi $8, $0, 0x10090200	
+	lw $8, 4($8)
+	andi $13, $13, 1
+	addi $6, $0, 0x10090308	
+	lw $6, 0($6)
+	addi $7, $6, 0	
+	beq $13, $0, peca2
+	addi $4, $4, 20
+	addi $5, $5, -20
+	
+peca2:	jal retang
+	addi $9, $4, -19
+	addi $11, $5, -19
+	
+	addi $4, $0, 1
+	sub $4, $4, $13
+	mul $4, $4, 9
+	sub $7, $0, $13
+	add $4, $4, $7
+	add $4, $4, $9
+	addi $8, $0, 0x00777777
+	addi $5, $0, 1
+	sub $5, $5, $13
+	sub $5, $0, $5
+	mul $7, $13, 9
+	add $5, $5, $7
+	add $5, $5, $11
+	addi $6, $0, 0x10090304	
+	lw $6, 0($6)
+	lui $7, 0x1001
+	jal endPxy
+	sw $8, 0($2)
+	addi $8, $0, 0x00aaaaaa
+	sw $8, 4($2)
+	sll $6, $6, 2
+	add $2, $2, $6
+	addi $8, $0, 0x00777777
+	sw $8, 0($2)
+	addi $8, $0, 0x00666666
+	sw $8, -4($2)
+	
+	addi $4, $9, 0
+	addi $5, $11, 0
+	addi $11, $0, -1
+	addi $6, $0, 1
+	andi $7, $13, 1
+	beq $12, $0, pxNum
+	beq $12, $6, mostra1
+	addi $6, $6, 1
+	beq $12, $6, mostra2
+	addi $6, $6, 1
+	beq $12, $6, mostra3
+	addi $6, $6, 1
+	beq $12, $6, mostra4
+	addi $6, $6, 1
+	beq $12, $6, mostra5
+	addi $6, $6, 1
+	beq $12, $6, mostra6
+	j pxNum
+		
+fimPeca: jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
 
 #----------------ENDERECO-----------------
 # Rotina para calcular um endereco
@@ -233,37 +390,26 @@ fimBordj: jal retPilha
 # Entrada: $4, $5, $6, $7 onde:
 #	$4 = px, $5=py, $6=cor, $7=end inicial
 # Usa sem preservar
-ponto:	addi $10, $0, 0x10090310 # dimensoes do ponto
-	lw $10, 0($10)
-	addi $11, $6, 0
-	addi $12, $4, 0
-	addi $6, $0, 0x10090304 # L 
-	lw $6, 0($6)
+ponto:	addi $8, $4, 0
 	addi $4, $31, 0
 	jal insPilha
-	addi $13, $12, 3
-	addi $14, $5, 3
-	addi $15, $5, 0
-pontoL:	slt $10, $14, $5
-	bne $10, $0, saiP
-	addi $4, $12, 0
-pontoC:	slt $10, $13, $4
-	bne $10, $0, contL
-	beq $4, $12, tqe # testa a quina esquerda
-	beq $4, $13, tqd # testa a quina direita
-printP:	jal endPxy
-	sw $11, 0($2)
-contC:	addi $4, $4, 1
-	j pontoC
-tqe:	beq $5, $15, contC
-	beq $5, $14, contC
-	j printP
-tqd:	beq $5, $15, contC
-	beq $5, $14, contC
-	j printP
+	addi $4, $8, 1
+	addi $8, $6, 0
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $4, -2
+	addi $5, $5, 1
+	addi $6, $0, 4
+	addi $7, $0, 2
+	jal retang
+	addi $4, $4, -2
+	addi $5, $5, 1
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
 	
-contL:	addi $5, $5, 1
-	j pontoL
+	
 saiP:	jal retPilha 
 	addi $31, $3, 0
 	jr $31
@@ -274,16 +420,13 @@ saiP:	jal retPilha
 # Entrada: $4, $5, $6, $7, onde:
 #	$4 = px, $5=py, $6=cor e $7=girar
 # Usa sem preservar: $9
-N1:	addi $9, $0, 0x10090308
-	lw $9, 0($9)
-	srl $9, $9, 1
-	addi $9, $9, -2
-	add $5, $5, $9
-	add $9, $4, $9
+N1:	addi $6, $0, 0x10090200	
+	lw $6, 8($6)
+	addi $7, $4, 0
 	addi $4, $31, 0
 	jal insPilha
-	add $4, $0, $9	
-	lui $7, 0x1001
+	addi $4, $7, 8
+	addi $5, $5, 8
 	jal ponto
 saiN1:	jal retPilha 
 
@@ -294,11 +437,13 @@ saiN1:	jal retPilha
 # Rotina para desenhar o numero 2
 # Entrada: $4, $5, $6, $7, onde:
 #	$4 = px, $5=py, $6=cor e $7=girar
-# Usa sem preservar $9, $22, $23
-N2:	addi $9, $4, 0	
+# Usa sem preservar $9, $8, $23
+N2:	addi $8, $0, 0x10090200	
+	lw $8, 12($8)
+	addi $9, $4, 0	
 	addi $4, $31, 0
 	jal insPilha
-	addi $22, $6, 0
+	addi $6, $8, 0
 	addi $23, $0, 1
 	sub, $23, $23, $7
 	sll $23, $23, 1
@@ -317,7 +462,7 @@ N2:	addi $9, $4, 0
 	sll $23, $7, 1
 	add $4, $4, $23
 	addi $5, $5, 9
-	addi $6, $22, 0
+	addi $6, $8, 0
 	lui $7, 0x1001
 	jal ponto
 	
@@ -329,11 +474,13 @@ saiN2:	jal retPilha
 # Rotina para desenhar o numero 3
 # Entrada: $4, $5, $6, $7, onde:
 #	$4 = px, $5=py, $6=cor e $7=girar
-# Usa sem preservar $9, $22, $23
-N3:	addi $9, $4, 0	
+# Usa sem preservar $8, $9, $23
+N3:	addi $8, $0, 0x10090200	
+	lw $8, 16($8)
+	addi $9, $4, 0	
 	addi $4, $31, 0
 	jal insPilha
-	addi $22, $6, 0
+	addi $6, $8, 0
 	addi $23, $0, 1
 	sub, $23, $23, $7
 	sll $23, $23, 1
@@ -347,7 +494,7 @@ N3:	addi $9, $4, 0
 	addi $7, $23, 0
 	addi $4, $9, 8
 	addi $5, $5, 3
-	addi $6, $22, 0
+	addi $6, $8, 0
 	lui $7, 0x1001
 	jal ponto
 	addi $7, $23, 0
@@ -358,9 +505,10 @@ N3:	addi $9, $4, 0
 	sll $23, $7, 1
 	add $4, $4, $23
 	addi $5, $5, 3
-	addi $6, $22, 0
+	addi $6, $8, 0
 	lui $7, 0x1001
 	jal ponto
+	
 	
 saiN3:	jal retPilha 
 	addi $31, $3, 0
@@ -370,26 +518,28 @@ saiN3:	jal retPilha
 # Rotina para desenhar o numero 4
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=cor
-# Usa sem preservar: $9, $22
-N4:	addi $9, $4, 0	
+# Usa sem preservar: $8, $9
+N4:	addi $8, $0, 0x10090200	
+	lw $8, 20($8)
+	addi $9, $4, 0	
 	addi $4, $31, 0
 	jal insPilha
-	addi $22, $6, 0
+	addi $6, $8, 0
 	addi $4, $9, 2
 	addi $5, $5, 2
 	lui $7, 0x1001
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 14
-	addi $5, $5, -4
+	addi $5, $5, -3
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 14
 	addi $5, $5, 9
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 2
-	addi $5, $5, -4
+	addi $5, $5, -3
 	jal ponto
 	
 saiN4:	jal retPilha 
@@ -401,29 +551,31 @@ saiN4:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=cor
 # Usa sem preservar: $9, $22
-N5:	addi $9, $4, 0	
+N5:	addi $8, $0, 0x10090200	
+	lw $8, 24($8)
+	addi $9, $4, 0	
 	addi $4, $31, 0
 	jal insPilha
-	addi $22, $6, 0
+	addi $6, $8, 0
 	addi $4, $9, 2
 	addi $5, $5, 2
 	lui $7, 0x1001
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 14
-	addi $5, $5, -4
+	addi $5, $5, -3
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 8
-	addi $5, $5, 2
+	addi $5, $5, 3
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 14
-	addi $5, $5, 2
+	addi $5, $5, 3
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 2
-	addi $5, $5, -4
+	addi $5, $5, -3
 	jal ponto
 	
 saiN5:	jal retPilha 
@@ -435,11 +587,15 @@ saiN5:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=cor e $7=girar
 # Usa sem preservar: $9, $21, $22, $23
-N6:	addi $9, $4, 0	
+N6:	addi $8, $0, 0x10090200	
+	lw $8, 28($8)
+	addi $6, $8, 0	
+	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
 	jal insPilha
 	
+	addi $10, $7, 0
 	addi $4, $0, 1
 	sub $4, $4, $7
 	sll $4, $4, 1
@@ -453,13 +609,11 @@ N6:	addi $9, $4, 0
 	sll $22, $7, 1
 	add $5, $5, $22
 	add $5, $5, $23
-	addi $21, $7, 0
 	lui $7, 0x1001
-	addi $22, $6, 0
 	jal ponto
 	
-	addi $6, $22, 0
-	addi $7, $21, 0
+	addi $6, $8, 0 # guarda a cor
+	addi $7, $10, 0 # guarda o giro
 	addi $4, $0, 1
 	sub $4, $4, $7
 	mul $4, $4, 14
@@ -473,25 +627,23 @@ N6:	addi $9, $4, 0
 	mul $22, $7, 14
 	add $5, $5, $22
 	add $5, $5, $23
-	addi $21, $7, 0
 	lui $7, 0x1001
-	addi $22, $6, 0
 	jal ponto
 	
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 2
 	addi $5, $23, 2
 	lui $7, 0x1001
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 14
 	addi $5, $23, 2
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 14
 	addi $5, $23, 14
 	jal ponto
-	addi $6, $22, 0
+	addi $6, $8, 0
 	addi $4, $9, 2
 	addi $5, $23, 14
 	jal ponto
@@ -505,8 +657,8 @@ saiN6:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=escala
 # Usa sem preservar: $9, $21, $22, $23
-num1:	addi $8, $0, 0x10090204	
-	lw $8, 0($8)
+num1:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
 	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
@@ -545,8 +697,8 @@ sain1:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=escala
 # Usa sem preservar: $9, $21, $22, $23
-num2:	addi $8, $0, 0x10090204	
-	lw $8, 0($8)
+num2:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
 	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
@@ -631,8 +783,8 @@ sain2:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=escala
 # Usa sem preservar: $9, $21, $22, $23
-num3:	addi $8, $0, 0x10090204	
-	lw $8, 0($8)
+num3:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
 	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
@@ -712,8 +864,8 @@ sain3:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=escala
 # Usa sem preservar: $9, $21, $22, $23
-num4:	addi $8, $0, 0x10090204	
-	lw $8, 0($8)
+num4:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
 	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
@@ -763,8 +915,8 @@ sain4:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=escala
 # Usa sem preservar: $9, $21, $22, $23
-num5:	addi $8, $0, 0x10090204	
-	lw $8, 0($8)
+num5:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
 	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
@@ -839,8 +991,8 @@ sain5:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=escala
 # Usa sem preservar: $9, $21, $22, $23
-num6:	addi $8, $0, 0x10090204	
-	lw $8, 0($8)
+num6:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
 	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
@@ -925,8 +1077,8 @@ sain6:	jal retPilha
 # Entrada: $4, $5, $6, onde:
 #	$4 = px, $5=py, $6=escala
 # Usa sem preservar: $9, $21, $22, $23
-num7:	addi $8, $0, 0x10090204	
-	lw $8, 0($8)
+num7:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
 	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
