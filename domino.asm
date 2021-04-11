@@ -17,7 +17,7 @@
 	.word 256 512 20 40 4 # Dimensoes
 
 .data 0x10090a00
-	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
+	.word 6 3 235 107 2 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
 	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 # pecas do jogador
 .data 0x10090b00
 	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
@@ -66,22 +66,11 @@ main:
 	addi $4, $0, 280
 	addi $5, $0, 5
 	jal num7
-		
-	addi $4, $0, 235
-	addi $5, $0, 109
-	addi $6, $0, 40
-	addi $7, $0, 20
-	add $8, $0, $0
-	jal bordaRet
-	
-	addi $4, $0, 236
-	addi $5, $0, 108
-	addi $6, $0, 40
-	addi $7, $0, 20
-	addi $8, $0, 0x00888888
-fimTela: jal retang
 
-	addi $8, $0, 28
+
+	addi $7, $0, 0x10090a00
+	addi $6, $0, 0
+	jal peca
 	
 	addi $2, $0, 41
 	syscall
@@ -141,31 +130,98 @@ fimBgi: jr $31
 
 #-----------------PECA--------------------
 # Rotina para desenhar a peca
-# Entradas:	$4 px
-#		$5 py
-#		$6 girar
+# Entradas:	$6 virada
 #		$7 endereco da peca
 # Saida:	
 # Usa (sem preservar): $8, $9, $11, $12, $13
-peca:	addi $8, $0, 0x10090200	
-	lw $8, 4($8)
-	addi $9, $4, 0	
+peca:	addi $9, $7, 0
+	lw $8, 16($9)
 	addi $4, $31, 0
 	jal insPilha
-	addi $4, $5, 0
-	jal insPilha
 	addi $4, $9, 0
-	jal insPilha	
-	lw $11, 0($7)
-	lw $12, 4($7)
-	addi $13, $6, 0
-	addi $6, $0, 0x10090308	
-	lw $6, 0($6)
-	addi $7, $6, 0
+	jal insPilha
+	addi $4, $6, 0
+	jal insPilha
+	andi $8, $8, 1
+	lw $11, 8($7)
+	lw $12, 12($7)
+	addi $4, $11, 1
+	addi $5, $12, 1
+	addi $10, $0, 19
+	addi $13, $0, 39
+	beq $8, $0, retP
+	addi $10, $0, 39
+	addi $13, $0, 19
+	
+retP:	addi $6, $10, 0
+	addi $7, $13, 0
+	addi $8, $0, 0x10090204		
+	lw $8, 0($8)
 	jal retang
-
-	addi $4, $4, -19	
-	addi $5, $5, -19	
+	addi $4, $11, 0
+	addi $5, $12, 0
+	addi $6, $10, 1
+	addi $7, $0, 1
+	addi $8, $8, 0x00111111
+	jal retang
+	add $4, $11, $10
+	addi $5, $12, 1
+	addi $6, $0, 1
+	addi $7, $13, 0
+	jal retang
+	addi $4, $11, 0
+	addi $5, $12, 1
+	addi $6, $0, 1
+	addi $7, $13, 0
+	subi $8, $8, 0x00222222
+	jal retang
+	addi $4, $11, 0
+	add $5, $12, $13
+	addi $6, $10, 0
+	addi $7, $0, 1
+	jal retang
+	jal retPilha
+	bne $3, $0, fimPeca # testa se a peca esta virada
+	
+	lw $13, 16($9)
+	andi $13, $13, 1
+	addi $4, $0, 1
+	sub $4, $4, $13
+	mul $4, $4, 9
+	mul $7, $13, 19
+	add $4, $4, $7
+	add $4, $4, $11
+	addi $8, $0, 0x00888888
+	addi $5, $0, 1
+	sub $5, $5, $13
+	mul $5, $5, 19
+	mul $7, $13, 9
+	add $5, $5, $7
+	add $5, $5, $12
+	addi $6, $0, 0x10090304	
+	lw $6, 0($6)
+	lui $7, 0x1001
+	jal endPxy
+	sw $8, 0($2)
+	addi $8, $0, 0x00aaaaaa
+	sw $8, 4($2)
+	sll $6, $6, 2
+	add $2, $2, $6
+	addi $8, $0, 0x00888888
+	sw $8, 4($2)
+	addi $8, $0, 0x00777777
+	sw $8, 0($2) # termina de imprimir o ponto do meio da peca
+	
+	lw $10, 16($9)		
+	lw $11, 0($9)
+	lw $12, 4($9)
+	srl $10, $10, 1
+	beq $10, $0, leNums
+	lw $11, 4($9)
+	lw $12, 0($9)
+leNums:	lw $4, 8($9)
+	lw $5, 12($9)
+		
 	addi $6, $0, 1
 	andi $7, $13, 1
 	beq $11, $0, pxNum
@@ -218,53 +274,16 @@ mostra6: addi $6, $0, 0x10090200
 	bne $4, $0, fimPeca
 	
 pxNum:	jal retPilha
-	addi $4, $3, 0
-	jal retPilha
-	addi $5, $3, 20
-	addi $8, $0, 0x10090200	
-	lw $8, 4($8)
-	andi $13, $13, 1
-	addi $6, $0, 0x10090308	
-	lw $6, 0($6)
-	addi $7, $6, 0	
-	beq $13, $0, peca2
-	addi $4, $4, 20
-	addi $5, $5, -20
-	
-peca2:	jal retang
-	addi $9, $4, -19
-	addi $11, $5, -19
-	
-	addi $4, $0, 1
-	sub $4, $4, $13
-	mul $4, $4, 10
-	sub $7, $0, $13
-	add $4, $4, $7
-	add $4, $4, $9
-	addi $8, $0, 0x00888888
-	addi $5, $0, 1
-	sub $5, $5, $13
-	sub $5, $0, $5
-	mul $7, $13, 10
-	add $5, $5, $7
-	add $5, $5, $11
-	addi $6, $0, 0x10090304	
-	lw $6, 0($6)
-	lui $7, 0x1001
-	jal endPxy
-	sw $8, 0($2)
-	addi $8, $0, 0x00aaaaaa
-	sw $8, 4($2)
-	sll $6, $6, 2
-	add $2, $2, $6
-	addi $8, $0, 0x00888888
-	sw $8, 0($2)
-	addi $8, $0, 0x00666666
-	sw $8, -4($2)
-	
-	addi $4, $9, 0
-	addi $5, $11, 0
-	addi $11, $0, -1
+	addi $9, $3, 0
+	lw $4, 8($9)
+	lw $5, 12($9)
+	lw $6, 16($9)	
+	andi $6, $6, 1
+	addi $5, $5, 19
+	beq $6, $0, invN
+	addi $4, $4, 19
+	addi $5, $5, -19
+invN:	addi $11, $0, -1
 	addi $6, $0, 1
 	andi $7, $13, 1
 	beq $12, $0, pxNum
