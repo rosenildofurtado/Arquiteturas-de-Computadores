@@ -6,20 +6,28 @@
 	.word 4 4 4 5 4 6
 	.word 5 5 5 6
 	.word 6 6
-.data 0x10090100
-	.word -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 # pecas do jogador
-	.word -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 # pecas do computador a
-	.word -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 # pecas do computador b
-	.word -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 # pecas do computador c
+
 .data 0x10090200
-	.word 0x00006600 0x00888888 0x00ffffff 0x00ffa500 0x00000088 
+	.word 0x00006600 0x00999999 0x00ffffff 0x00ffa500 0x00000088 
 # cores:      verdeFundo,  cinza,    branco, 	laranja,   azulEsc,	
 
 	.word 0x00008800 0x00ffff00 0x00880000 0x00ff0000 0x0000ff00 
 # cores:	verdEsc,  amarelo,   vermEsc,  	vermelho,   verde
 .data 0x10090300
 	.word 256 512 20 40 4 # Dimensoes
-	
+
+.data 0x10090a00
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 # pecas do jogador
+.data 0x10090b00
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 # pecas do computador a
+.data 0x10090c00
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 # pecas do computador b
+.data 0x10090d00
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 # pecas do computador c
 	
 .text
 main: 	
@@ -59,35 +67,25 @@ main:
 	addi $5, $0, 5
 	jal num7
 		
-	addi $4, $0, 99
-	addi $5, $0, 101
-	addi $6, $0, 20
-	addi $7, $0, 40
+	addi $4, $0, 235
+	addi $5, $0, 109
+	addi $6, $0, 40
+	addi $7, $0, 20
 	add $8, $0, $0
 	jal bordaRet
 	
-	addi $4, $0, 100
-	addi $5, $0, 100
-	addi $6, $0, 20
-	addi $7, $0, 40
+	addi $4, $0, 236
+	addi $5, $0, 108
+	addi $6, $0, 40
+	addi $7, $0, 20
 	addi $8, $0, 0x00888888
 fimTela: jal retang
 
-	addi $4, $0, 100
-	addi $5, $0, 100
-	addi $7, $0, 0
-	jal N4
-	addi $4, $0, 100
-	addi $5, $0, 120
-	addi $7, $0, 0
-	jal N6
+	addi $8, $0, 28
 	
-	addi $4, $0, 236
-	addi $5, $0, 108
-	addi $6, $0, 2
-	addi $7, $0, 0x10090060
-	jal peca
-	
+	addi $2, $0, 41
+	syscall
+	div $4, $8
 	
 	
 	
@@ -239,15 +237,15 @@ peca2:	jal retang
 	
 	addi $4, $0, 1
 	sub $4, $4, $13
-	mul $4, $4, 9
+	mul $4, $4, 10
 	sub $7, $0, $13
 	add $4, $4, $7
 	add $4, $4, $9
-	addi $8, $0, 0x00777777
+	addi $8, $0, 0x00888888
 	addi $5, $0, 1
 	sub $5, $5, $13
 	sub $5, $0, $5
-	mul $7, $13, 9
+	mul $7, $13, 10
 	add $5, $5, $7
 	add $5, $5, $11
 	addi $6, $0, 0x10090304	
@@ -259,7 +257,7 @@ peca2:	jal retang
 	sw $8, 4($2)
 	sll $6, $6, 2
 	add $2, $2, $6
-	addi $8, $0, 0x00777777
+	addi $8, $0, 0x00888888
 	sw $8, 0($2)
 	addi $8, $0, 0x00666666
 	sw $8, -4($2)
@@ -287,6 +285,49 @@ fimPeca: jal retPilha
 	addi $31, $3, 0
 	jr $31
 	
+#----------------MOVE PECA-----------------
+# Rotina para deslocar uma peca
+# Entradas:	$4 px0
+#		$5 py0
+#		$6 px1
+#		$7 py1
+# Saida:	
+# Usa (sem preservar): $8
+moveP:	addi $8, $4, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $7, 0
+	jal insPilha	
+	addi $4, $6, 0
+	jal insPilha
+	addi $4, $5, 0
+	jal insPilha
+	addi $4, $8, 0
+	jal insPilha
+	div $4, $6
+	mflo $8
+	bne $8, $0, maior
+	div $6, $4
+	mflo $8
+	
+maior:	addi $9, $4, 0
+	addi $15, $5, 0
+	addi $17, $6, 0
+	addi $18, $7, 0
+	addi $7, $0, 2
+whileM: sub $4, $17, $9
+	div $4, $7
+	mflo $4
+	add $4, $4, $9
+	sub $5, $18, $15
+	div $5, $7
+	mflo $5
+	add $5, $5, $15
+	
+	jal peca
+	
+
+
 
 #----------------ENDERECO-----------------
 # Rotina para calcular um endereco
