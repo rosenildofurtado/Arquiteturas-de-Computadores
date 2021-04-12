@@ -17,7 +17,7 @@
 	.word 256 512 20 40 4 # Dimensoes
 
 .data 0x10090a00
-	.word 6 3 235 107 2 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
+	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
 	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 # pecas do jogador
 .data 0x10090b00
 	.word -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 -1 -1 235 107 1 
@@ -39,45 +39,48 @@ main:
 	lw $6, 0($6)
 	jal bgColor # Background verde
 	
-	addi $4, $0, 100
-	addi $5, $0, 5
-	jal num1
-	
-	addi $4, $0, 130
-	addi $5, $0, 5
-	jal num2
-	
-	addi $4, $0, 160
-	addi $5, $0, 5
-	jal num3
-	
-	addi $4, $0, 190
-	addi $5, $0, 5
-	jal num4
-	
-	addi $4, $0, 220
-	addi $5, $0, 5
-	jal num5
-	
-	addi $4, $0, 250
-	addi $5, $0, 5
-	jal num6
-	
-	addi $4, $0, 280
-	addi $5, $0, 5
-	jal num7
+	jal numeros # mostra os numeros de 1 a 7
 
-
+# Embaralha e distribui as pecas
 	addi $7, $0, 0x10090a00
-	addi $6, $0, 0
-	jal peca
-	
-	addi $2, $0, 41
+	addi $10, $0, 0x10090a00
+	addi $8, $0, 28
+distrib: addi $2, $0, 41 # gera um numero aleatorio
 	syscall
+	
 	div $4, $8
+	mfhi $5
+	slt $4, $4, $0
+	beq $4, $0, contDis
+	sub $5, $0, $5
+contDis: addi $12, $5, 0
+	addi $6, $0, 0x10090000
+	jal buscaEnd
+	addi $6, $2, 0
+	jal moveMem
+	addi $6, $0, 4
+	div $8, $6
+	mfhi $9
+	addi $6, $0, 1
+	addi $7, $7, 256
+	addi $8, $8, -1
+	bne $6, $9, fimDist
+	addi $10, $10, 20
+	addi $7, $10, 0
+fimDist: bne $8, $0, distrib
+#	----------------------
+	addi $4, $0, 7
+mais7:	jal insPilha
 	
+	addi $7, $0, 0x10090a00
 	
-	
+	addi $4, $0, 100
+	addi $5, $0, 15
+	addi $6, $0, 1
+	addi $7, $0, 0x10090a00
+	addi $15, $0, 0
+	jal moveP
+
 	
 fim:	addi $2, $0, 10
 	syscall
@@ -107,6 +110,38 @@ retPilha: addi $25, $0, 0x10090400
 	addi $24, $24, -4
 	sw $24, 0($25)
 	jr $31	
+	
+#---------------MOVEMEM-----------------
+# Rotina para mover a peca na memoria
+# Entrada: $6, $7
+# Saidas: 	
+# Usa (sem preservar): $25
+moveMem: lw $25, 0($6)
+	sw $25, 0($7)
+	lw $25, 4($6)
+	sw $25, 4($7)
+	addi $25, $0, -1
+	sw $25, 0($6)
+	sw $25, 4($6)
+	jr $31	
+
+#---------------BUSCAEND-----------------
+# Rotina para buscar um endereco na memoria
+# Entrada: $5, $6
+# Saidas: $2	
+# Usa (sem preservar): $25
+buscaEnd: addi $2, $6, 0
+	addi $25, $0, 0
+forBus:	lw $24, 0($2)
+	slt $24, $24, $0
+	beq $24, $0, contBus
+	addi $2, $2, 8
+	j forBus
+contBus: beq $25, $5, fimBus
+	addi $25, $25, 1
+	addi $2, $2, 8
+	j forBus
+fimBus: jr $31
 
 #----------------BGCOLOR------------------
 # Rotina para preencher a cor de fundo
@@ -181,9 +216,11 @@ retP:	addi $6, $10, 0
 	addi $7, $0, 1
 	jal retang
 	jal retPilha
-	bne $3, $0, fimPeca # testa se a peca esta virada
-	
-	lw $13, 16($9)
+	bne $3, $0, virada # testa se a peca esta virada
+	j nVirada
+virada: jal retPilha
+	j fimPeca
+nVirada: lw $13, 16($9)
 	andi $13, $13, 1
 	addi $4, $0, 1
 	sub $4, $4, $13
@@ -306,13 +343,14 @@ fimPeca: jal retPilha
 	
 #----------------MOVE PECA-----------------
 # Rotina para deslocar uma peca
-# Entradas:	$4 px0
-#		$5 py0
-#		$6 px1
-#		$7 py1
+# Entradas:	$4 px destino
+#		$5 py destino
+#		$6 vira
+#		$7 endereco da peca
+#		$15 gira
 # Saida:	
-# Usa (sem preservar): $8
-moveP:	addi $8, $4, 0
+# Usa (sem preservar): $8 a 17
+moveP:	addi $9, $4, 0
 	addi $4, $31, 0
 	jal insPilha
 	addi $4, $7, 0
@@ -321,31 +359,71 @@ moveP:	addi $8, $4, 0
 	jal insPilha
 	addi $4, $5, 0
 	jal insPilha
-	addi $4, $8, 0
+	addi $4, $9, 0
 	jal insPilha
-	div $4, $6
-	mflo $8
-	bne $8, $0, maior
-	div $6, $4
-	mflo $8
+	addi $10, $5, 0
+	addi $11, $6, 0
+	lw $4, 8($7)
+	sub $12, $9, $4
+	addi $17, $0, 2
+	div $12, $17
+	mflo $12
+	add $12, $12, $4
+	lw $5, 12($7)
+	sub $14, $10, $5
+	div $14, $17
+	mflo $14
+	add $14, $14, $5
+	sw $12, 8($7)
+	sw $14, 12($7)
+	sw $15, 16($7)
+	lw $13, 16($7)
+	addi $8, $0, 0x10090200 # Apaga a peca
+	lw $8, 0($8)
+	addi $6, $0, 20
+	addi $14, $7, 0
+	addi $7, $0, 40
+	andi $13, $13, 1
+	beq $13, $0, apaga
+	addi $7, $0, 20
+	addi $6, $0, 40
+apaga:	addi $17, $4, 0
+	addi $4, $7, 0
+	jal insPilha
+	addi $4, $6, 0
+	jal insPilha
+	addi $4, $17, 0
+	jal retang
 	
-maior:	addi $9, $4, 0
-	addi $15, $5, 0
-	addi $17, $6, 0
-	addi $18, $7, 0
-	addi $7, $0, 2
-whileM: sub $4, $17, $9
-	div $4, $7
-	mflo $4
-	add $4, $4, $9
-	sub $5, $18, $15
-	div $5, $7
-	mflo $5
-	add $5, $5, $15
+	addi $6, $11, 0
+	addi $7, $14, 0	
+	jal peca	
+	lw $4, 8($14)
+	lw $5, 12($14)	
+	addi $8, $0, 0x10090200 # Apaga a peca
+	lw $8, 0($8)
+	jal retPilha
+	addi $6, $3, 0
+	jal retPilha
+	addi $7, $3, 0
+	jal retang
 	
+	jal retPilha
+	addi $4, $3, 0
+	jal retPilha
+	addi $5, $3, 0
+	jal retPilha
+	addi $6, $3, 0
+	jal retPilha
+	addi $7, $3, 0
+		
+	sw $4, 8($7)
+	sw $5, 12($7)	
 	jal peca
 	
-
+fimMove: jal retPilha 
+	addi $31, $3, 0
+	jr $31
 
 
 #----------------ENDERECO-----------------
@@ -1198,3 +1276,35 @@ sain7:	jal retPilha
 	addi $31, $3, 0
 	jr $31
 	
+numeros: addi $4, $31, 0
+	jal insPilha
+	addi $4, $0, 100
+	addi $5, $0, 5
+	jal num1
+	
+	addi $4, $0, 130
+	addi $5, $0, 5
+	jal num2
+	
+	addi $4, $0, 160
+	addi $5, $0, 5
+	jal num3
+	
+	addi $4, $0, 190
+	addi $5, $0, 5
+	jal num4
+	
+	addi $4, $0, 220
+	addi $5, $0, 5
+	jal num5
+	
+	addi $4, $0, 250
+	addi $5, $0, 5
+	jal num6
+	
+	addi $4, $0, 280
+	addi $5, $0, 5
+	jal num7
+	jal retPilha 
+	addi $31, $3, 0
+	jr $31
