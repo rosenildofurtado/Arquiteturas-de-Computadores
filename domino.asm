@@ -1124,72 +1124,32 @@ num6:	addi $8, $0, 0x10090200
 	addi $4, $9, 0
 	addi $5, $23, 1
 	addi $6, $0, 1
-	addi $7, $0, 1
+	addi $7, $0, 5
 	jal retang
 	addi $4, $9, 1
 	addi $5, $23, 0
-	addi $6, $0, 1
-	addi $7, $0, 3
+	addi $6, $0, 3
+	addi $7, $0, 1
 	jal retang
-	addi $4, $9, 6
+	addi $4, $9, 4
 	addi $5, $23, 1
 	addi $6, $0, 1
-	addi $7, $0, 2
+	addi $7, $0, 1
 	jal retang
-	addi $4, $9, 0
-	addi $5, $23, 2
-	addi $6, $0, 1
-	addi $7, $0, 8
-	jal retang
-	addi $4, $9, 3
-	addi $5, $23, 0
+	addi $4, $9, 1
+	addi $5, $23, 3
 	addi $6, $0, 3
-	addi $7, $0, 2
+	addi $7, $0, 1
 	jal retang
-	addi $4, $9, 2
-	addi $5, $23, 0
-	addi $6, $0, 1
-	addi $7, $0, 3
-	jal retang
-	addi $4, $9, 5
-	addi $5, $23, 5
-	addi $6, $0, 1
-	addi $7, $0, 3
-	jal retang
-	addi $4, $9, 6
+	addi $4, $9, 1
 	addi $5, $23, 6
-	addi $6, $0, 1
-	addi $7, $0, 5
+	addi $6, $0, 3
+	addi $7, $0, 1
 	jal retang
-	addi $4, $9, 7
-	addi $5, $23, 7
-	addi $6, $0, 1
-	addi $7, $0, 3
-	jal retang
-	addi $4, $9, 3
-	addi $5, $23, 5
-	addi $6, $0, 2
-	addi $7, $0, 2
-	jal retang
-	addi $4, $9, 2
-	addi $5, $23, 6
+	addi $4, $9, 4
+	addi $5, $23, 4
 	addi $6, $0, 1
 	addi $7, $0, 2
-	jal retang
-	addi $4, $9, 2
-	addi $5, $23, 9
-	addi $6, $0, 1
-	addi $7, $0, 3
-	jal retang
-	addi $4, $9, 3
-	addi $5, $23, 10
-	addi $6, $0, 2
-	addi $7, $0, 2
-	jal retang
-	addi $4, $9, 5
-	addi $5, $23, 9
-	addi $6, $0, 1
-	addi $7, $0, 3
 	jal retang
 	
 sain6:	jal retPilha 
@@ -1209,51 +1169,31 @@ num7:	addi $8, $0, 0x10090200
 	jal insPilha
 	addi $4, $9, 0
 	addi $5, $23, 0
+	addi $6, $0, 4
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 0
 	addi $6, $0, 1
 	addi $7, $0, 2
 	jal retang
-	addi $4, $9, 1
-	addi $5, $23, 0
-	addi $6, $0, 5
+	addi $4, $9, 3
+	addi $5, $23, 2
+	addi $6, $0, 1
 	addi $7, $0, 1
 	jal retang
-	addi $4, $9, 6
-	addi $5, $23, 0
-	addi $6, $0, 1
-	addi $7, $0, 5
-	jal retang
-	addi $4, $9, 7
-	addi $5, $23, 0
-	addi $6, $0, 1
-	addi $7, $0, 3
-	jal retang
-	addi $4, $9, 5
+	addi $4, $9, 2
 	addi $5, $23, 3
 	addi $6, $0, 1
-	addi $7, $0, 3
-	jal retang
-	addi $4, $9, 4
-	addi $5, $23, 4
-	addi $6, $0, 1
-	addi $7, $0, 3
-	jal retang
-	addi $4, $9, 3
-	addi $5, $23, 5
-	addi $6, $0, 1
-	addi $7, $0, 3
-	jal retang
-	addi $4, $9, 2
-	addi $5, $23, 6
-	addi $6, $0, 1
-	addi $7, $0, 3
+	addi $7, $0, 1
 	jal retang
 	addi $4, $9, 1
-	addi $5, $23, 8
+	addi $5, $23, 4
 	addi $6, $0, 1
-	addi $7, $0, 3
+	addi $7, $0, 1
 	jal retang
 	addi $4, $9, 0
-	addi $5, $23, 10
+	addi $5, $23, 5
 	addi $6, $0, 1
 	addi $7, $0, 2
 	jal retang
@@ -1264,32 +1204,32 @@ sain7:	jal retPilha
 	
 numeros: addi $4, $31, 0
 	jal insPilha
-	addi $4, $0, 168
-	addi $5, $0, 2
+	addi $4, $0, 178
+	addi $5, $0, 3
 	jal num1
 	
-	addi $4, $0, 194
-	addi $5, $0, 2
+	addi $4, $0, 204
+	addi $5, $0, 3
 	jal num2
 	
-	addi $4, $0, 220
-	addi $5, $0, 2
+	addi $4, $0, 230
+	addi $5, $0, 3
 	jal num3
 	
-	addi $4, $0, 246
-	addi $5, $0, 2
+	addi $4, $0, 256
+	addi $5, $0, 3
 	jal num4
 	
-	addi $4, $0, 272
-	addi $5, $0, 2
+	addi $4, $0, 282
+	addi $5, $0, 3
 	jal num5
 	
-	addi $4, $0, 298
-	addi $5, $0, 2
+	addi $4, $0, 308
+	addi $5, $0, 3
 	jal num6
 	
-	addi $4, $0, 324
-	addi $5, $0, 2
+	addi $4, $0, 334
+	addi $5, $0, 3
 	jal num7
 	jal retPilha 
 	addi $31, $3, 0
