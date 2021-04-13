@@ -28,6 +28,10 @@
 .data 0x10090d00
 	.word -1 -1 6 33 1 -1 -1 6 58 1 -1 -1 6 83 1 -1 -1 6 108 1 
 	.word -1 -1 6 133 1 -1 -1 6 158 1 -1 -1 6 183 1 # pecas do computador c
+.data 0x10090e00
+	.word -1 -1 236 108 1 0 
+.data 0x10090f00
+	.word -1 -1 256 128 1 0
 	
 .text
 main: 	
@@ -182,10 +186,39 @@ fimDist: bne $8, $0, distrib
 	addi $6, $0, 1
 	jal peca
 	
+	addi $4, $0, 0x10090e00
+	addi $5, $0, 0 # 0 peca para cima, 1 peca para baixo
+	addi $6, $0, 1
+	addi $7, $0, 0x10090a00
+	jal moveP
+	addi $4, $0, 0x10090a00
+	addi $5, $0, 1 # 0 peca para cima, 1 peca para baixo
+	addi $6, $0, 0
+	addi $7, $0, 0x10090e00
+	jal moveP
+	
 fim:	addi $2, $0, 10
 	syscall
 	
 # ========= ROTINAS ============================
+
+#---------------ATRASO-----------------
+# Rotina para atrasar o programa
+# Entradas:	$4 tempo 
+# Usa (sem preservar): $24, $25
+atrasar: addi $5, $0, 0 # i
+	addi $7, $0, 1000 # fim de i
+forAtr:	slt $6 $0, $4
+	beq $6, $0, fimAtr
+	addi $5, $0, 0 # i
+forAtri: slt $6 $5, $7
+	beq $6, $0, fimAti
+	nop
+	addi $5, $5, 1
+	j forAtri
+fimAti:	addi $4, $4, -1
+	j forAtr
+fimAtr:	jr $31
 
 #---------------INSPILHA-----------------
 # Rotina para inserir o PC na pilha
@@ -223,6 +256,7 @@ moveMem: lw $25, 0($6)
 	addi $25, $0, -1
 	sw $25, 0($6)
 	sw $25, 4($6)
+	addi $2, $7, 0
 	jr $31	
 
 #---------------BUSCAEND-----------------
@@ -265,13 +299,15 @@ fimBgi: jr $31
 
 #-----------------PECA--------------------
 # Rotina para desenhar a peca
-# Entradas:	$6 virada
+# Entradas:	$6 virada = 0 peca para cima, 1 peca para baixo
 #		$7 endereco da peca
 # Saida:	
 # Usa (sem preservar): $8, $9, $11, $12, $13
 peca:	addi $9, $7, 0
 	lw $8, 16($9)
 	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 0
 	jal insPilha
 	addi $4, $9, 0
 	jal insPilha
@@ -439,87 +475,100 @@ invN:	addi $11, $0, -1
 	j pxNum
 		
 fimPeca: jal retPilha 
+	addi $2, $3, 0
+	jal retPilha 
 	addi $31, $3, 0
 	jr $31
 	
+#----------------APAGAR-----------------
+# Rotina para apagar uma peca
+# Entradas:	$7 endereco da peca
+# Saida:	
+# Usa (sem preservar): $8, $24 e $25
+apagar:	addi $4, $31, 0
+	jal insPilha
+	addi $4, $7, 0
+	jal insPilha
+	lw $4, 8($7) # leu px
+	lw $5, 12($7) # leu py
+	lw $8, 16($7) # leu gira
+	addi $6, $0, 20
+	addi $7, $0, 40
+	andi $8, $8, 1
+	beq $8, $0, apaga
+	addi $7, $0, 20
+	addi $6, $0, 40	
+apaga:	addi $8, $0, 0x10090200 # Apaga a peca
+	lw $8, 0($8)
+	jal retang
+fimApag: jal retPilha 
+	addi $2, $3, 0
+	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
+	
 #----------------MOVE PECA-----------------
 # Rotina para deslocar uma peca
-# Entradas:	$4 px destino
-#		$5 py destino
-#		$6 vira
+# Entradas:	$4 endereco da peca de destino
+#		$5 vira = 0 peca para cima, 1 peca para baixo
+#		$6 gira
 #		$7 endereco da peca
-#		$15 gira
 # Saida:	
 # Usa (sem preservar): $8 a 17
-moveP:	addi $9, $4, 0
+moveP:	addi $9, $4, 0 # endereco de destino
 	addi $4, $31, 0
 	jal insPilha
-	addi $4, $7, 0
+	addi $4, $9, 0
 	jal insPilha	
-	addi $4, $6, 0
-	jal insPilha
 	addi $4, $5, 0
 	jal insPilha
-	addi $4, $9, 0
-	jal insPilha
-	addi $10, $5, 0
-	addi $11, $6, 0
-	lw $4, 8($7)
-	sub $12, $9, $4
-	addi $17, $0, 2
-	div $12, $17
-	mflo $12
-	add $12, $12, $4
-	lw $5, 12($7)
-	sub $14, $10, $5
-	div $14, $17
-	mflo $14
-	add $14, $14, $5
-	sw $12, 8($7)
-	sw $14, 12($7)
-	lw $13, 16($7)
-	sw $15, 16($7)
-	addi $8, $0, 0x10090200 # Apaga a peca
-	lw $8, 0($8)
-	addi $6, $0, 20
-	addi $14, $7, 0
-	addi $7, $0, 40
-	andi $13, $13, 1
-	beq $13, $0, apaga
-	addi $7, $0, 20
-	addi $6, $0, 40
-apaga:	addi $17, $4, 0
-	addi $4, $7, 0
-	jal insPilha
 	addi $4, $6, 0
 	jal insPilha
-	addi $4, $17, 0
-	jal retang
+	addi $4, $7, 0
+	jal insPilha # guardou os dados na pilha
+	jal apagar # apaga a peca na origem
 	
-	addi $6, $11, 0
-	addi $7, $14, 0	
-	jal peca	
-	lw $4, 8($14)
-	lw $5, 12($14)	
-	addi $8, $0, 0x10090200 # Apaga a peca
-	lw $8, 0($8)
-	jal retPilha
-	addi $6, $3, 0
 	jal retPilha
 	addi $7, $3, 0
-	jal retang
-	
-	jal retPilha
-	addi $4, $3, 0
 	jal retPilha
 	addi $5, $3, 0
+	sw $5, 16($7) # guarda o novo valor de gira na origem
 	jal retPilha
 	addi $6, $3, 0
-	jal retPilha
-	addi $7, $3, 0
+	addi $4, $6, 0
+	jal insPilha
+	lw $4, 8($7) # leu px0
+	lw $5, 8($9) # leu pxf
+	sub $8, $5, $4 # pxf - px0
+	addi $5, $0, 2 #constante 2
+	div $8, $5 # (pxf - px0)/2
+	mflo $8 # nao deslocou porque tambem preciso do resultado negativo
+	add $4, $8, $4 # (pxf - px0)/2 + px0
+	sw $4, 8($7) # guarda o novo valor de x na origem
+	
+	lw $4, 12($7) # leu py0
+	lw $5, 12($9) # leu pyf
+	sub $8, $5, $4 # pyf - py0
+	addi $5, $0, 2 #constante 2
+	div $8, $5 # (pyf - py0)/2
+	mflo $8 # nao deslocou porque tambem preciso do resultado negativo
+	add $4, $8, $4 # (pyf - py0)/2 + py0
+	sw $4, 12($7) # guarda o novo valor de y na origem
+	jal peca
+	addi $4, $0, 100
+	jal atrasar # atrasar
+	addi $9, $2, 0
+	addi $7, $9, 0
+	jal apagar
+	addi $6, $2, 0
 		
-	sw $4, 8($7)
-	sw $5, 12($7)	
+	jal retPilha
+	addi $9, $3, 0	
+	jal retPilha 
+	addi $7, $3, 0	
+	jal moveMem
+	addi $6, $9, 0
 	jal peca
 	
 fimMove: jal retPilha 
