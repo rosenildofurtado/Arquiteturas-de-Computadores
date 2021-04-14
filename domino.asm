@@ -17,21 +17,17 @@
 	.word 256 512 20 40 4 # Dimensoes
 
 .data 0x10090a00
-	.word -1 -1 168 15 0 -1 -1 194 15 0 -1 -1 220 15 0 -1 -1 246 15 0 
-	.word -1 -1 272 15 0 -1 -1 298 15 0 -1 -1 324 15 0 # pecas do jogador
+	.word -1 -1 103 13 0 -1 -1 129 13 0 -1 -1 155 13 0 -1 -1 181 13 0 -1 -1 207 13 0 -1 -1 233 13 0 
+	.word -1 -1 259 13 0 -1 -1 285 13 0 -1 -1 311 13 0 -1 -1 337 13 0 -1 -1 363 13 0 -1 -1 389 13 0 # pecas do jogador
 .data 0x10090b00
-	.word -1 -1 467 33 1 -1 -1 467 58 1 -1 -1 467 83 1 -1 -1 467 108 1 
-	.word -1 -1 467 133 1 -1 -1 467 158 1 -1 -1 467 183 1 # pecas do computador a
+	.word -1 -1 103 210 0 -1 -1 129 210 0 -1 -1 155 210 0 -1 -1 181 210 0 -1 -1 207 210 0 -1 -1 233 210 0 
+	.word -1 -1 259 210 0 -1 -1 285 210 0 -1 -1 311 210 0 -1 -1 337 210 0 -1 -1 363 210 0 -1 -1 389 210 0 # pecas do computador a
 .data 0x10090c00
-	.word -1 -1 168 210 0 -1 -1 194 210 0 -1 -1 220 210 0 -1 -1 246 210 0 
-	.word -1 -1 272 210 0 -1 -1 298 210 0 -1 -1 324 210 0 # pecas do computador b
-.data 0x10090d00
-	.word -1 -1 6 33 1 -1 -1 6 58 1 -1 -1 6 83 1 -1 -1 6 108 1 
-	.word -1 -1 6 133 1 -1 -1 6 158 1 -1 -1 6 183 1 # pecas do computador c
+	.word -1 -1 4 13 0 -1 -1 24 13 0 -1 -1 44 13 0 -1 -1 64 13 0 # pecas do morto
 .data 0x10090e00
-	.word -1 -1 236 108 1 0 
+	.word 5 3 236 108 1 1 
 .data 0x10090f00
-	.word -1 -1 256 128 1 0
+	.word 2 6 256 128 1 1
 	
 .text
 main: 	
@@ -44,158 +40,8 @@ main:
 	jal bgColor # Background verde
 	
 	jal numeros # mostra os numeros de 1 a 7
+	jal embaralhar
 
-# Embaralha e distribui as pecas
-	addi $7, $0, 0x10090a00
-	addi $10, $0, 0x10090a00
-	addi $8, $0, 28
-distrib: addi $2, $0, 41 # gera um numero aleatorio
-	syscall
-	
-	div $4, $8
-	mfhi $5
-	slt $4, $4, $0
-	beq $4, $0, contDis
-	sub $5, $0, $5
-contDis: addi $12, $5, 0
-	addi $6, $0, 0x10090000
-	jal buscaEnd
-	addi $6, $2, 0
-	jal moveMem
-	addi $6, $0, 4
-	div $8, $6
-	mfhi $9
-	addi $6, $0, 1
-	addi $7, $7, 256
-	addi $8, $8, -1
-	bne $6, $9, fimDist
-	addi $10, $10, 20
-	addi $7, $10, 0
-fimDist: bne $8, $0, distrib
-#	----------------------
-	
-	addi $7, $0, 0x10090a00
-	addi $6, $0, 0
-	jal peca
-	addi $7, $0, 0x10090a00
-	addi $7, $7, 20
-	addi $6, $0, 0
-	jal peca
-	addi $7, $0, 0x10090a00
-	addi $7, $7, 40
-	addi $6, $0, 0
-	jal peca
-	addi $7, $0, 0x10090a00
-	addi $7, $7, 60
-	addi $6, $0, 0
-	jal peca
-	addi $7, $0, 0x10090a00
-	addi $7, $7, 80
-	addi $6, $0, 0
-	jal peca
-	addi $7, $0, 0x10090a00
-	addi $7, $7, 100
-	addi $6, $0, 0
-	jal peca
-	addi $7, $0, 0x10090a00
-	addi $7, $7, 120
-	addi $6, $0, 0
-	jal peca
-
-	addi $7, $0, 0x10090b00
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090b00
-	addi $7, $7, 20
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090b00
-	addi $7, $7, 40
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090b00
-	addi $7, $7, 60
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090b00
-	addi $7, $7, 80
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090b00
-	addi $7, $7, 100
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090b00
-	addi $7, $7, 120
-	addi $6, $0, 1
-	jal peca
-	
-	addi $7, $0, 0x10090c00
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090c00
-	addi $7, $7, 20
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090c00
-	addi $7, $7, 40
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090c00
-	addi $7, $7, 60
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090c00
-	addi $7, $7, 80
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090c00
-	addi $7, $7, 100
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090c00
-	addi $7, $7, 120
-	addi $6, $0, 1
-	jal peca
-
-	addi $7, $0, 0x10090d00
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090d00
-	addi $7, $7, 20
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090d00
-	addi $7, $7, 40
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090d00
-	addi $7, $7, 60
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090d00
-	addi $7, $7, 80
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090d00
-	addi $7, $7, 100
-	addi $6, $0, 1
-	jal peca
-	addi $7, $0, 0x10090d00
-	addi $7, $7, 120
-	addi $6, $0, 1
-	jal peca
-	
-	addi $4, $0, 0x10090e00
-	addi $5, $0, 0 # 0 peca para cima, 1 peca para baixo
-	addi $6, $0, 1
-	addi $7, $0, 0x10090a00
-	jal moveP
-	addi $4, $0, 0x10090a00
-	addi $5, $0, 1 # 0 peca para cima, 1 peca para baixo
-	addi $6, $0, 0
-	addi $7, $0, 0x10090e00
-	jal moveP
 	
 fim:	addi $2, $0, 10
 	syscall
@@ -527,6 +373,12 @@ moveP:	addi $9, $4, 0 # endereco de destino
 	jal insPilha
 	addi $4, $7, 0
 	jal insPilha # guardou os dados na pilha
+	addi $4, $0, 50
+	jal atrasar # atrasar
+	jal retPilha
+	addi $7, $3, 0
+	addi $4, $7, 0
+	jal insPilha # guardou os dados na pilha
 	jal apagar # apaga a peca na origem
 	
 	jal retPilha
@@ -556,7 +408,7 @@ moveP:	addi $9, $4, 0 # endereco de destino
 	add $4, $8, $4 # (pyf - py0)/2 + py0
 	sw $4, 12($7) # guarda o novo valor de y na origem
 	jal peca
-	addi $4, $0, 100
+	addi $4, $0, 50
 	jal atrasar # atrasar
 	addi $9, $2, 0
 	addi $7, $9, 0
@@ -1251,35 +1103,252 @@ sain7:	jal retPilha
 	addi $31, $3, 0
 	jr $31
 	
+#-----------------NUM 8----------------
+# Rotina para desenhar o algarismo 8
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=escala
+# Usa sem preservar: $9, $21, $22, $23
+num8:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 1
+	addi $5, $23, 0
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 0
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 3
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 0
+	addi $5, $23, 4
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 4
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 6
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	
+sain8:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
+#-----------------NUM 9----------------
+# Rotina para desenhar o algarismo 9
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=escala
+# Usa sem preservar: $9, $21, $22, $23
+num9:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 1
+	addi $5, $23, 0
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 0
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 5
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 3
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 0
+	addi $5, $23, 5
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 6
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	
+sain9:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
+
+#--------------NUMEROS---------------	
 numeros: addi $4, $31, 0
 	jal insPilha
-	addi $4, $0, 178
+	addi $4, $0, 114
 	addi $5, $0, 3
 	jal num1
 	
-	addi $4, $0, 204
+	addi $4, $0, 140
 	addi $5, $0, 3
 	jal num2
 	
-	addi $4, $0, 230
+	addi $4, $0, 166
 	addi $5, $0, 3
 	jal num3
 	
-	addi $4, $0, 256
+	addi $4, $0, 192
 	addi $5, $0, 3
 	jal num4
 	
-	addi $4, $0, 282
+	addi $4, $0, 218
 	addi $5, $0, 3
 	jal num5
 	
-	addi $4, $0, 308
+	addi $4, $0, 244
 	addi $5, $0, 3
 	jal num6
 	
-	addi $4, $0, 334
+	addi $4, $0, 270
 	addi $5, $0, 3
 	jal num7
+	addi $4, $0, 296
+	addi $5, $0, 3
+	jal num8
+	addi $4, $0, 322
+	addi $5, $0, 3
+	jal num9
+	
 	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
+
+# Embaralha e distribui as pecas
+embaralhar: addi $4, $31, 0
+	jal insPilha
+	
+	addi $10, $0, 0x10090a00
+	addi $11, $0, 0x10090b00
+	addi $8, $0, 28
+distrib: addi $4, $10, 0
+	jal insPilha
+	addi $4, $11, 0
+	jal insPilha
+	addi $4, $8, 0
+	jal insPilha
+	addi $2, $0, 41 # gera um numero aleatorio
+	syscall
+	
+	div $4, $8
+	mfhi $5 # resto aleatorio
+	slt $4, $4, $0
+	beq $4, $0, contDis
+	sub $5, $0, $5
+contDis: addi $6, $0, 0x10090000
+	jal buscaEnd
+	addi $6, $2, 0
+	lui $7, 0x1009
+	addi $7, $7, 0x0e00
+	jal moveMem
+	addi $7, $0, 0x10090e00
+	addi $6, $0, 1
+	jal peca
+	jal retPilha
+	addi $8, $3, 0
+	addi $4, $8, 0
+	jal insPilha
+	addi $4, $0, 7
+	div $8, $4
+	mfhi $9
+	beq $9, $0, morto	
+	jal retPilha
+	addi $8, $3, 0
+	jal retPilha
+	addi $11, $3, 0
+	jal retPilha
+	addi $10, $3, 0
+	
+	andi $4, $8, 1
+	beq $4, $0, dJog1
+	addi $5, $11, 0
+	addi $11, $11, 20
+	addi $4, $10, 0
+	jal insPilha
+	addi $4, $11, 0
+	jal insPilha
+	addi $4, $8, 0
+	jal insPilha
+	addi $4, $5, 0
+	addi $5, $0, 1
+	addi $6, $0, 0
+	lui $7, 0x1009
+	addi $7, $7, 0x0e00
+	j dist	
+dJog1:	addi $5, $10, 0
+	addi $10, $10, 20
+	addi $4, $10, 0
+	jal insPilha
+	addi $4, $11, 0
+	jal insPilha
+	addi $4, $8, 0
+	jal insPilha
+	addi $4, $5, 0
+	addi $5, $0, 0
+	addi $6, $0, 0
+	lui $7, 0x1009
+	addi $7, $7, 0x0e00
+	j dist	
+	
+morto:	jal retPilha
+	addi $8, $3, 0
+	addi $4, $8, 0
+	jal insPilha
+	andi $7, $8, 3
+	mul $7, $7, 20
+	lui $5, 0x1009
+	addi $5, $5, 0x0c00
+	add $7, $7, $5
+	addi $4, $7, 0
+	lui $7, 0x1009
+	addi $7, $7, 0x0e00
+	addi $6, $0, 0
+	addi $5, $0, 1
+	j dist
+dist:	jal moveP
+	addi $4, $0, 236
+	lui $7, 0x1009
+	addi $7, $7, 0x0e00
+	sw $4, 8($7)
+	addi $4, $0, 108
+	sw $4, 12($7)
+	jal retPilha
+	addi $8, $3, 0
+	jal retPilha
+	addi $11, $3, 0
+	jal retPilha
+	addi $10, $3, 0
+	addi $8, $8, -1
+fimDist: bne $8, $0, distrib
+	jal retPilha
 	addi $31, $3, 0
 	jr $31
