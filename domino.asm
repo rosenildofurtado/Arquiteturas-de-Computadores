@@ -11,7 +11,7 @@
 	.word 0x00006600 0x00999999 0x00ffffff 0x00ffa500 0x00000088 
 # cores:      verdeFundo,  cinza,    branco, 	laranja,   azulEsc,	
 
-	.word 0x00008800 0x00ffff00 0x00880000 0x00ff0000 0x0000ff00 
+	.word 0x00009900 0x00ffff00 0x00880000 0x00ff0000 0x0000ff00 
 # cores:	verdEsc,  amarelo,   vermEsc,  	vermelho,   verde
 .data 0x10090300
 	.word 256 512 20 40 4 # Dimensoes
@@ -28,20 +28,35 @@
 	.word 5 3 236 108 1 1 
 .data 0x10090f00
 	.word 2 6 256 128 1 1
-	
+
+#===============.TEXT=====================
 .text
-main: 	
-	addi $4, $0, 0x10090300 # quantas linha tem na tela
+main: 	lui $4, 0x1009
+	addi $4, $4, 0x0300 # quantas linha tem na tela
 	lw $4, 0($4)
-	addi $5, $0, 0x10090304 # quantas colunas tem na tela
+	lui $5, 0x1009
+	addi $5, $5, 0x0304 # quantas colunas tem na tela
 	lw $5, 0($5)
-	addi $6, $0, 0x10090200 # cor do background
+	lui $6, 0x1009
+	addi $6, $6, 0x0200 # cor do background
 	lw $6, 0($6)
 	jal bgColor # Background verde
 	
-	jal numeros # mostra os numeros de 1 a 7
+	jal strMorto
+	jal numeros # mostra os numeros de 1 a 12
+	addi $4, $0, 420
+	addi $5, $0, 23
+	lui $7, 0x1009
+	addi $7, $7, 0x0200 # cor do background
+	lw $7, 36($7)
+	jal indicaVez
+	addi $4, $0, 420
+	addi $5, $0, 220
+	lui $7, 0x1009
+	addi $7, $7, 0x0200 # cor do background
+	lw $7, 32($7)
+	jal indicaVez
 	jal embaralhar
-
 	
 fim:	addi $2, $0, 10
 	syscall
@@ -474,6 +489,262 @@ forj:	slt $18, $21, $19
 conti:	addi $22, $22, 1
 	j fori
 fimFori: jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
+
+#---------------INDICA VEZ-------------
+# Rotina para desenhar um circulo para indicar de quem e a vez
+# Entrada: $4, $5, $6, $7 e $8 onde:
+#	$4 = px, $5=py, $6=tamx, $7=jogador e $8=cor
+# Usa sem preservar  $8 ao $11
+	
+indicaVez: add $9, $0, $4 # px
+	addi $10, $5, 0 # py
+	add $8, $0, $7 # cor
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 4	
+	addi $5, $10, 2
+	addi $6, $0, 13
+	addi $7, $0, 17
+	jal retang
+	addi $4, $9, 2
+	addi $5, $10, 6
+	addi $6, $0, 2
+	addi $7, $0, 9
+	jal retang
+	addi $4, $9, 17
+	addi $5, $10, 6
+	addi $6, $0, 2
+	addi $7, $0, 9
+	jal retang
+	
+	addi $8, $0, 0x00bbbbbb
+	addi $4, $9, 9
+	addi $5, $10, 0
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 20
+	addi $5, $10, 9
+	addi $6, $0, 1
+	addi $7, $0, 3
+	jal retang
+	addi $4, $9, 13
+	addi $5, $10, 1
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 15
+	addi $5, $10, 2
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 17
+	addi $5, $10, 3
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 18
+	addi $5, $10, 4
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 19
+	addi $5, $10, 6
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	
+	addi $8, $0, 0x00999999
+	addi $4, $9, 8
+	addi $5, $10, 1
+	addi $6, $0, 5
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 8
+	addi $5, $10, 19
+	addi $6, $0, 5
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 1
+	addi $5, $10, 8
+	addi $6, $0, 1
+	addi $7, $0, 5
+	jal retang
+	addi $4, $9, 19
+	addi $5, $10, 8
+	addi $6, $0, 1
+	addi $7, $0, 5
+	jal retang
+	
+	addi $4, $9, 13
+	addi $5, $10, 2
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 15
+	addi $5, $10, 3
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 17
+	addi $5, $10, 4
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 18
+	addi $5, $10, 6
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	
+	addi $4, $9, 18
+	addi $5, $10, 13
+	addi $6, $0, 1
+	addi $7, $0, 4
+	jal retang
+	addi $4, $9, 17
+	addi $5, $10, 15
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 15
+	addi $5, $10, 17
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 13
+	addi $5, $10, 18
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	
+	addi $4, $9, 6
+	addi $5, $10, 18
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 4
+	addi $5, $10, 17
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 3
+	addi $5, $10, 15
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 2
+	addi $5, $10, 13
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	
+	addi $4, $9, 2
+	addi $5, $10, 4
+	addi $6, $0, 1
+	addi $7, $0, 4
+	jal retang
+	addi $4, $9, 3
+	addi $5, $10, 4
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 4
+	addi $5, $10, 3
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 6
+	addi $5, $10, 2
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	
+	addi $8, $0, 0x00aaaaaa
+	addi $4, $9, 6
+	addi $5, $10, 1
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 4
+	addi $5, $10, 2
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 3
+	addi $5, $10, 3
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 19
+	addi $5, $10, 13
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	
+	addi $8, $0, 0x00888888
+	addi $4, $9, 17
+	addi $5, $10, 17
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 15
+	addi $5, $10, 18
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 13
+	addi $5, $10, 19
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 1
+	addi $5, $10, 6
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	
+	addi $8, $0, 0x00777777
+	addi $4, $9, 9
+	addi $5, $10, 20
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 6
+	addi $5, $10, 19
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 4
+	addi $5, $10, 18
+	addi $6, $0, 2
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 3
+	addi $5, $10, 17
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 2
+	addi $5, $10, 15
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 1
+	addi $5, $10, 13
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 0
+	addi $5, $10, 9
+	addi $6, $0, 1
+	addi $7, $0, 3
+	jal retang
+	
+fimVez: jal retPilha 
 	addi $31, $3, 0
 	jr $31
 
@@ -1200,6 +1471,159 @@ sain9:	jal retPilha
 	addi $31, $3, 0
 	jr $31
 	
+#-----------------NUM 0----------------
+# Rotina para desenhar o algarismo 0
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=escala
+# Usa sem preservar: $9, $21, $22, $23
+num0:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 1
+	addi $5, $23, 0
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 0
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 5
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 5
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 6
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	
+sain0:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
+#-----------------LETRA M----------------
+# Rotina para desenhar a letra M
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=escala
+# Usa sem preservar: $9, $21, $22, $23
+letraM:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 0
+	addi $5, $23, 0
+	addi $6, $0, 1
+	addi $7, $0, 7
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 0
+	addi $6, $0, 1
+	addi $7, $0, 7
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 2
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 3
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	
+saiLM:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
+#-----------------LETRA R----------------
+# Rotina para desenhar a letra R
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=escala
+# Usa sem preservar: $9, $21, $22, $23
+letraR:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 0
+	addi $5, $23, 0
+	addi $6, $0, 1
+	addi $7, $0, 7
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 0
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 3
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 4
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 3
+	addi $5, $23, 5
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 6
+	addi $6, $0, 1
+	addi $7, $0, 1
+	jal retang
+	
+saiLR:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
+#-----------------LETRA T----------------
+# Rotina para desenhar a letra T
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=escala
+# Usa sem preservar: $9, $21, $22, $23
+letraT:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 0
+	addi $5, $23, 0
+	addi $6, $0, 5
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 6
+	jal retang
+	
+saiLT:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
 
 #--------------NUMEROS---------------	
 numeros: addi $4, $31, 0
@@ -1237,10 +1661,56 @@ numeros: addi $4, $31, 0
 	addi $4, $0, 322
 	addi $5, $0, 3
 	jal num9
+	addi $4, $0, 341
+	addi $5, $0, 3
+	jal num1
+	addi $4, $0, 348
+	addi $5, $0, 3
+	jal num0
+	addi $4, $0, 367
+	addi $5, $0, 3
+	jal num1
+	addi $4, $0, 374
+	addi $5, $0, 3
+	jal num1
+	addi $4, $0, 393
+	addi $5, $0, 3
+	jal num1
+	addi $4, $0, 400
+	addi $5, $0, 3
+	jal num2
 	
 	jal retPilha 
 	addi $31, $3, 0
 	jr $31
+	
+#--------------MORTO---------------	
+strMorto: addi $4, $31, 0
+	jal insPilha
+	addi $4, $0, 30
+	addi $5, $0, 3
+	jal letraM
+	
+	addi $4, $0, 36
+	addi $5, $0, 3
+	jal num0
+	
+	addi $4, $0, 42
+	addi $5, $0, 3
+	jal letraR
+	
+	addi $4, $0, 48
+	addi $5, $0, 3
+	jal letraT
+	
+	addi $4, $0, 54
+	addi $5, $0, 3
+	jal num0
+	
+	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
 
 
 # Embaralha e distribui as pecas
