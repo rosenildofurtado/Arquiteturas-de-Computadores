@@ -19,15 +19,20 @@
 .data 0x10090a00
 	.word -1 -1 103 13 0 -1 -1 129 13 0 -1 -1 155 13 0 -1 -1 181 13 0 -1 -1 207 13 0 -1 -1 233 13 0 
 	.word -1 -1 259 13 0 -1 -1 285 13 0 -1 -1 311 13 0 -1 -1 337 13 0 -1 -1 363 13 0 -1 -1 389 13 0 # pecas do jogador
+	.word 12 # quantidad de pecas
 .data 0x10090b00
 	.word -1 -1 103 210 0 -1 -1 129 210 0 -1 -1 155 210 0 -1 -1 181 210 0 -1 -1 207 210 0 -1 -1 233 210 0 
-	.word -1 -1 259 210 0 -1 -1 285 210 0 -1 -1 311 210 0 -1 -1 337 210 0 -1 -1 363 210 0 -1 -1 389 210 0 # pecas do computador a
+	.word -1 -1 259 210 0 -1 -1 285 210 0 -1 -1 311 210 0 -1 -1 337 210 0 -1 -1 363 210 0 -1 -1 389 210 0 # pecas do computador
+	.word 12 # quantidad de pecas
 .data 0x10090c00
 	.word -1 -1 4 13 0 -1 -1 24 13 0 -1 -1 44 13 0 -1 -1 64 13 0 # pecas do morto
 .data 0x10090e00
-	.word 5 3 236 108 1 1 
-.data 0x10090f00
-	.word 2 6 256 128 1 1
+	.word -1 -1 236 108 1
+	.word 0 # indica qual jogador comeca
+.data 0x10091000
+	.word -1 -1 236 108 1 1
+.data 0x10091800
+	.word -1 -1 256 128 1 1
 
 #===============.TEXT=====================
 .text
@@ -58,10 +63,159 @@ main: 	lui $4, 0x1009
 	jal indicaVez
 	jal embaralhar
 	
+	jal selPeca
+
 fim:	addi $2, $0, 10
 	syscall
 	
 # ========= ROTINAS ============================
+
+#--------------SELECIONA PECA-------------------
+# Rotina para atrasar o programa
+# Entradas:	$4 tempo 
+# Usa (sem preservar): $24, $25
+selPeca: addi $4, $31, 0
+	jal insPilha
+	lui $9, 0x1009
+	addi $9, $9, 0x0a00
+	addi $13, $9, 0
+	addi $10, $0, 0 # contador
+	lw $11, 240($9)
+selProx: lw $12, 0($9)
+	slt $12, $12, $0
+	beq $12, $0, selRet
+	addi $9, $9, 20
+	j selProx
+selRet:	lui $8, 0x1009
+	addi $8, $8, 0x0200
+	lw $8, 8($8)
+	lw $4, 8($9)
+	lw $5, 12($9)
+	addi $4, $4, -3
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	addi $10, $10, 1
+	jal bordaRet
+lerTecl: lui $4, 0xffff
+	lw $5, 0($4)
+	bne $5, $0, verCaracter
+	j lerTecl
+verCaracter: lw $4, 4($4)
+	addi $5, $0, 'a'
+	beq $4, $5, char_a
+	addi $5, $0, 'd'
+	beq $4, $5, char_d
+	addi $5, $0, 'q'
+	beq $4, $5, char_q
+	addi $5, $0, 'e'
+	beq $4, $5, char_e
+	j lerTecl
+	
+char_a:	addi $13, $9, 0
+	addi $7, $0, 1
+	slt $7, $7, $10
+	beq $7, $0, lerTecl
+	addi $7, $0, -1
+selReduz: addi $9, $9, -20
+	lw $6, 8($9)
+	beq $6, $7, selReduz
+	lui $8, 0x1009
+	addi $8, $8, 0x0200
+	lw $8, 0($8)
+	lw $4, 8($13)
+	lw $5, 12($13)
+	addi $4, $4, -3
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	addi $10, $10, -1
+	jal bordaRet
+	lui $8, 0x1009
+	addi $8, $8, 0x0200
+	lw $8, 8($8)
+	lw $4, 8($9)
+	lw $5, 12($9)
+	addi $4, $4, -3
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	jal bordaRet
+	j lerTecl
+	
+char_d:	addi $13, $9, 0
+	lui $6, 0x1009
+	addi $6, $6, 0x0a00
+	lw $7, 240($6)
+	slt $7, $10, $7
+	beq $7, $0, lerTecl
+	addi $7, $0, -1
+selAum: addi $9, $9, 20
+	lw $6, 8($9)
+	beq $6, $7, selAum
+	lui $8, 0x1009
+	addi $8, $8, 0x0200
+	lw $8, 0($8)
+	lw $4, 8($13)
+	lw $5, 12($13)
+	addi $4, $4, -3
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	addi $10, $10, 1
+	jal bordaRet
+	lui $8, 0x1009
+	addi $8, $8, 0x0200
+	lw $8, 8($8)
+	lw $4, 8($9)
+	lw $5, 12($9)
+	addi $4, $4, -3
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	jal bordaRet
+	j lerTecl
+
+char_q:	lui $8, 0x1009
+	addi $8, $8, 0x0e00
+	lw $4, 24($8)
+	bne $4, $0, moveq
+	addi $5, $0, 12
+	bne $11, $5, moveq
+	addi $11, $11, -1
+	sw $11, 240($13)
+	addi $4, $8, 0
+	addi $7, $9, 0
+	addi $5, $0, 0
+	addi $6, $0, 1
+	jal moveP
+	j fimSel
+	
+moveq:	lui $8, 0x1009
+	addi $8, $8, 0x1000
+	lw $8, 24($8)
+	j fimSel
+	
+char_e:	lui $8, 0x1009
+	addi $8, $8, 0x0e00
+	lw $4, 24($8)
+	bne $4, $0, moveq
+	addi $5, $0, 12
+	bne $11, $5, moveq
+	addi $11, $11, -1
+	sw $11, 240($13)
+	addi $4, $8, 0
+	addi $7, $9, 0
+	addi $5, $0, 0
+	addi $6, $0, 1
+	jal moveP
+	j fimSel
+	
+fimSel:	jal retPilha
+	addi $31, $3, 0
+	jr $31
+	
+
 
 #---------------ATRASO-----------------
 # Rotina para atrasar o programa
@@ -388,7 +542,7 @@ moveP:	addi $9, $4, 0 # endereco de destino
 	jal insPilha
 	addi $4, $7, 0
 	jal insPilha # guardou os dados na pilha
-	addi $4, $0, 50
+	addi $4, $0, 30
 	jal atrasar # atrasar
 	jal retPilha
 	addi $7, $3, 0
@@ -423,7 +577,7 @@ moveP:	addi $9, $4, 0 # endereco de destino
 	add $4, $8, $4 # (pyf - py0)/2 + py0
 	sw $4, 12($7) # guarda o novo valor de y na origem
 	jal peca
-	addi $4, $0, 50
+	addi $4, $0, 30
 	jal atrasar # atrasar
 	addi $9, $2, 0
 	addi $7, $9, 0
@@ -1811,6 +1965,8 @@ dist:	jal moveP
 	sw $4, 8($7)
 	addi $4, $0, 108
 	sw $4, 12($7)
+	addi $4, $0, 1
+	sw $4, 16($7)
 	jal retPilha
 	addi $8, $3, 0
 	jal retPilha
