@@ -26,6 +26,8 @@
 	.word 12 # quantidad de pecas
 .data 0x10090c00
 	.word -1 -1 4 13 0 -1 -1 24 13 0 -1 -1 44 13 0 -1 -1 64 13 0 # pecas do morto
+.data 0x10090d00
+	.word 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 7 7 7 7 7 7 147
 .data 0x10090e00
 	.word -1 -1 236 108 1
 	.word 0 # indica qual jogador comeca
@@ -38,9 +40,9 @@
 .data 0x10091800
 	.word 8 0 -1 -1 246 128 1 -1 -1 266 108 1 -1 -1 286 128 1 -1 -1 306 108 1 -1 -1 326 128 1 -1 -1 346 108 1 
 	.word -1 -1 366 128 1 -1 -1 386 108 1 -1 -1 406 128 1 -1 -1 426 108 1 -1 -1 446 128 1 -1 -1 466 108 1 
-	.word -1 -1 486 128 0 -1 -1 466 148 0 -1 -1 486 168 0 -1 -1 446 68 1 -1 -1 76 48 1 -1 -1 96 68 1 
-	.word -1 -1 116 48 1 -1 -1 136 68 1 -1 -1 156 48 1 -1 -1 176 68 1 -1 -1 196 48 1 -1 -1 216 68 1 
-	.word -1 -1 236 48 1 -1 -1 256 68 1 -1 -1 276 48 1
+	.word -1 -1 486 128 0 -1 -1 466 148 0 -1 -1 486 168 0 -1 -1 446 188 0 -1 -1 426 168 1 -1 -1 406 188 1 
+	.word -1 -1 386 168 1 -1 -1 366 188 1 -1 -1 346 168 1 -1 -1 326 188 1 -1 -1 306 168 1 -1 -1 286 188 1 
+	.word -1 -1 266 168 1 -1 -1 246 188 1 -1 -1 226 168 1
 
 #===============.TEXT=====================
 .text
@@ -72,6 +74,8 @@ main: 	lui $4, 0x1009
 	jal embaralhar
 	
 	jal selPeca
+vGanhou: j fim
+vPerdeu: j fim
 
 fim:	addi $2, $0, 10
 	syscall
@@ -90,11 +94,12 @@ selPeca: addi $4, $31, 0
 	addi $10, $0, 0 # contador
 	lw $11, 240($9)
 selProx: lw $12, 0($9)
-	slt $12, $12, $0
+	slt $12, $12, $0 # ver se existe uma peca. -1 = não tem
 	beq $12, $0, selRet
 	addi $9, $9, 20
-	j selProx
-selRet:	lui $8, 0x1009
+	j selProx # Se não tem, checa a proxima posicao
+selRet:	addi $10, $10, 1
+bordaPeca: lui $8, 0x1009
 	addi $8, $8, 0x0200
 	lw $8, 8($8)
 	lw $4, 8($9)
@@ -103,24 +108,26 @@ selRet:	lui $8, 0x1009
 	addi $5, $5, -12
 	addi $6, $0, 26
 	addi $7, $0, 55
-	addi $10, $10, 1
 	jal bordaRet
 lerTecl: lui $4, 0xffff
 	lw $5, 0($4)
 	bne $5, $0, verCaracter
 	j lerTecl
 verCaracter: lw $4, 4($4)
+	jal insPilha
 	addi $5, $0, 'a'
 	beq $4, $5, char_a
 	addi $5, $0, 'd'
 	beq $4, $5, char_d
 	addi $5, $0, 'q'
-	beq $4, $5, char_q
+	beq $4, $5, primeira
 	addi $5, $0, 'e'
-	beq $4, $5, char_e
+	beq $4, $5, primeira
+	jal retPilha
 	j lerTecl
 	
-char_a:	addi $13, $9, 0
+char_a:	jal retPilha
+	addi $13, $9, 0
 	addi $7, $0, 1
 	slt $7, $7, $10
 	beq $7, $0, lerTecl
@@ -128,30 +135,11 @@ char_a:	addi $13, $9, 0
 selReduz: addi $9, $9, -20
 	lw $6, 8($9)
 	beq $6, $7, selReduz
-	lui $8, 0x1009
-	addi $8, $8, 0x0200
-	lw $8, 0($8)
-	lw $4, 8($13)
-	lw $5, 12($13)
-	addi $4, $4, -3
-	addi $5, $5, -12
-	addi $6, $0, 26
-	addi $7, $0, 55
 	addi $10, $10, -1
-	jal bordaRet
-	lui $8, 0x1009
-	addi $8, $8, 0x0200
-	lw $8, 8($8)
-	lw $4, 8($9)
-	lw $5, 12($9)
-	addi $4, $4, -3
-	addi $5, $5, -12
-	addi $6, $0, 26
-	addi $7, $0, 55
-	jal bordaRet
-	j lerTecl
+	j mudaSel
 	
-char_d:	addi $13, $9, 0
+char_d:	jal retPilha
+	addi $13, $9, 0
 	lui $6, 0x1009
 	addi $6, $6, 0x0a00
 	lw $7, 240($6)
@@ -160,8 +148,11 @@ char_d:	addi $13, $9, 0
 	addi $7, $0, -1
 selAum: addi $9, $9, 20
 	lw $6, 8($9)
-	beq $6, $7, selAum
-	lui $8, 0x1009
+	beq $6, $7, selAum # testa se tem peça na posicao. -1 = nao tem
+	addi $10, $10, 1
+	j mudaSel
+	
+mudaSel: lui $8, 0x1009
 	addi $8, $8, 0x0200
 	lw $8, 0($8)
 	lw $4, 8($13)
@@ -170,21 +161,23 @@ selAum: addi $9, $9, 20
 	addi $5, $5, -12
 	addi $6, $0, 26
 	addi $7, $0, 55
-	addi $10, $10, 1
 	jal bordaRet
 	lui $8, 0x1009
 	addi $8, $8, 0x0200
 	lw $8, 8($8)
 	lw $4, 8($9)
 	lw $5, 12($9)
-	addi $4, $4, -3
-	addi $5, $5, -12
-	addi $6, $0, 26
-	addi $7, $0, 55
-	jal bordaRet
-	j lerTecl
+	j bordaPeca
+	
 
-char_q:	lui $8, 0x1009
+	
+moveq:	jal retPilha
+	lui $8, 0x1009
+	addi $8, $8, 0x1000
+	lw $8, 24($8)
+	j fimSel
+	
+primeira: lui $8, 0x1009
 	addi $8, $8, 0x0e00
 	lw $4, 24($8)
 	bne $4, $0, moveq
@@ -192,18 +185,28 @@ char_q:	lui $8, 0x1009
 	bne $11, $5, moveq
 	addi $11, $11, -1
 	sw $11, 240($13)
+	lui $10, 0x1009
+	addi $10, $10, 0x1000
+	lw $11, 0($13)
+	sw $11, 4($10)
+	lui $10, 0x1009
+	addi $10, $10, 0x1800
+	lw $11, 4($13)
+	sw $11, 4($10)
 	addi $4, $8, 0
 	addi $7, $9, 0
 	addi $5, $0, 0
 	addi $6, $0, 1
 	jal moveP
+	addi $4, $4, -3
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	addi $10, $10, 1
+	jal bordaRet
+	jal retPilha
 	j fimSel
-	
-moveq:	lui $8, 0x1009
-	addi $8, $8, 0x1000
-	lw $8, 24($8)
-	j fimSel
-	
+
 char_e:	lui $8, 0x1009
 	addi $8, $8, 0x0e00
 	lw $4, 24($8)
@@ -218,6 +221,13 @@ char_e:	lui $8, 0x1009
 	addi $6, $0, 1
 	jal moveP
 	j fimSel
+	
+redPeca: lui $9, 0x1009
+	addi $9, $9, 0x0a00
+	lw $10, 240($9)
+	addi $10, $10, -1
+	beq $9, $0, vGanhou
+	sw $10, 240($9)
 	
 fimSel:	jal retPilha
 	addi $31, $3, 0
