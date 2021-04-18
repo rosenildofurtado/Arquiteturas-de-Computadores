@@ -27,7 +27,9 @@
 .data 0x10090c00
 	.word -1 -1 4 13 0 -1 -1 24 13 0 -1 -1 44 13 0 -1 -1 64 13 0 # pecas do morto
 .data 0x10090d00
-	.word 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 7 7 7 7 7 7 147
+	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peças e quantos pontos o jogador tem
+	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peças e quantos pontos o computador tem
+	.word 8 8 8 8 8 8 8 # Total de peças que estao no jogo
 .data 0x10090e00
 	.word -1 -1 236 108 1
 	.word 0 # indica qual jogador comeca
@@ -73,7 +75,13 @@ main: 	lui $4, 0x1009
 	jal indicaVez
 	jal embaralhar
 	
-	jal selPeca
+	#jal selPeca
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	addi $7, $7, 40
+	#jal primPeca
 vGanhou: j fim
 vPerdeu: j fim
 
@@ -94,10 +102,10 @@ selPeca: addi $4, $31, 0
 	addi $10, $0, 0 # contador
 	lw $11, 240($9)
 selProx: lw $12, 0($9)
-	slt $12, $12, $0 # ver se existe uma peca. -1 = n�o tem
+	slt $12, $12, $0 # ver se existe uma peca. -1 = não tem
 	beq $12, $0, selRet
 	addi $9, $9, 20
-	j selProx # Se n�o tem, checa a proxima posicao
+	j selProx # Se não tem, checa a proxima posicao
 selRet:	addi $10, $10, 1
 bordaPeca: lui $8, 0x1009
 	addi $8, $8, 0x0200
@@ -148,7 +156,7 @@ char_d:	jal retPilha
 	addi $7, $0, -1
 selAum: addi $9, $9, 20
 	lw $6, 8($9)
-	beq $6, $7, selAum # testa se tem pe�a na posicao. -1 = nao tem
+	beq $6, $7, selAum # testa se tem peça na posicao. -1 = nao tem
 	addi $10, $10, 1
 	j mudaSel
 	
@@ -169,14 +177,6 @@ mudaSel: lui $8, 0x1009
 	lw $5, 12($9)
 	j bordaPeca
 	
-
-	
-moveq:	jal retPilha
-	lui $8, 0x1009
-	addi $8, $8, 0x1000
-	lw $8, 24($8)
-	j fimSel
-	
 primeira: lui $8, 0x1009
 	addi $8, $8, 0x0e00
 	lw $4, 24($8)
@@ -185,27 +185,16 @@ primeira: lui $8, 0x1009
 	bne $11, $5, moveq
 	addi $11, $11, -1
 	sw $11, 240($13)
-	lui $10, 0x1009
-	addi $10, $10, 0x1000
-	lw $11, 0($13)
-	sw $11, 4($10)
-	lui $10, 0x1009
-	addi $10, $10, 0x1800
-	lw $11, 4($13)
-	sw $11, 4($10)
-	addi $4, $8, 0
-	addi $7, $9, 0
-	addi $5, $0, 0
-	addi $6, $0, 1
-	jal moveP
-	addi $4, $4, -3
-	addi $5, $5, -12
-	addi $6, $0, 26
-	addi $7, $0, 55
-	addi $10, $10, 1
-	jal bordaRet
+	jal primPeca
 	jal retPilha
+	
+moveq:	jal retPilha
+	lui $8, 0x1009
+	addi $8, $8, 0x1000
+	lw $8, 24($8)
 	j fimSel
+	
+
 
 char_e:	lui $8, 0x1009
 	addi $8, $8, 0x0e00
@@ -233,7 +222,48 @@ fimSel:	jal retPilha
 	addi $31, $3, 0
 	jr $31
 	
-
+#-----------PRIMEIRA PECA--------------
+# Rotina para jogar a primeira peca
+# Entradas:	$6 endereco do contador
+#		$7 endereco da peca 
+# Usa (sem preservar): $23, $24 e $25
+primPeca: addi $4, $31, 0
+	jal insPilha
+	jal retPontos
+	
+	lui $25, 0x1009
+	addi $25, $25, 0x1000
+	lw $24, 0($7)
+	sw $24, 4($25)
+	lui $25, 0x1009
+	addi $25, $25, 0x1800
+	lw $24, 4($7)
+	sw $24, 4($25)
+	lui $8, 0x1009
+	addi $8, $8, 0x0200
+	lw $8, 0($8)
+	addi $4, $7, 0
+	jal insPilha
+	lw $4, 8($7)
+	addi $4, $4, -3
+	lw $5, 12($7)
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	jal bordaRet
+	
+	jal retPilha
+	addi $7, $3, 0
+	lui $4, 0x1009
+	addi $4, $4, 0x0e00
+	addi $5, $0, 0
+	addi $6, $0, 1
+	jal moveP
+	
+	
+	jal retPilha
+	addi $31, $3, 0
+	jr $31
 
 #---------------ATRASO-----------------
 # Rotina para atrasar o programa
@@ -1883,8 +1913,81 @@ strMorto: addi $4, $31, 0
 	addi $31, $3, 0
 	jr $31
 
+#--------CONTA PONTOS-----------
+# Rotina para contar os pontos dos jogadores
+# Entrada: $6, $7, onde:
+#	$6 = endereco do contador
+#	$7 = endereco da peca
+# Usa sem preservar: $23, $24 e $25
+contPontos: addi $4, $31, 0
+	jal insPilha
+	lw $24, 0($7)
+	lw $25, 4($7)
+	bne $24, $25, carroca
+	sll $23, $24, 2
+	addi $23, $23, 32
+	sw $24, 0($23)
+carroca: lw $23, 28($6)
+	add $23, $23, $24
+	add $23, $23, $25
+	sw $23, 28($6)
+	sll $24, $24, 2
+	add $24, $6, $24
+	lw $23, 0($24)
+	addi $23, $23, 1
+	sw $23, 0($24)
+	sll $25, $25, 2
+	add $25, $6, $25
+	lw $23, 0($25)
+	addi $23, $23, 1
+	sw $23, 0($25)
+	jal retPilha
+	addi $31, $3, 0
+	jr $31
+	
+#--------RETIRA PONTOS-----------
+# Rotina para diminuir os pontos dos jogadores
+# Entrada: $6, $7, onde:
+#	$6 = endereco do contador
+#	$7 = endereco da peca
+# Usa sem preservar: $23, $24 e $25
+retPontos: addi $4, $31, 0
+	jal insPilha
+	lw $24, 0($7)
+	lw $25, 4($7)
+	lui $4, 0x1009
+	addi $4, $4, 0x0d00
+	addi $4, $4, 96
+	lw $23, 28($6)
+	sub $23, $23, $24
+	sub $23, $23, $25
+	sw $23, 28($6)
+	sll $24, $24, 2
+	add $4, $4, $24
+	add $24, $6, $24
+	lw $23, 0($24)
+	addi $23, $23, -1
+	sw $23, 0($24)
+	lw $23, 0($4)
+	addi $23, $23, -1
+	sw $23, 0($4)
+	lui $4, 0x1009
+	addi $4, $4, 0x0d00
+	addi $4, $4, 96
+	sll $25, $25, 2
+	add $4, $4, $25
+	add $25, $6, $25
+	lw $23, 0($25)
+	addi $23, $23, -1
+	sw $23, 0($25)
+	lw $23, 0($4)
+	addi $23, $23, -1
+	sw $23, 0($4)
+	jal retPilha
+	addi $31, $3, 0
+	jr $31
 
-
+#---------DISTRIBUIR-------------	
 # Embaralha e distribui as pecas
 embaralhar: addi $4, $31, 0
 	jal insPilha
@@ -1915,6 +2018,7 @@ contDis: addi $6, $0, 0x10090000
 	addi $7, $0, 0x10090e00
 	addi $6, $0, 1
 	jal peca
+	addi $7, $2, 0
 	jal retPilha
 	addi $8, $3, 0
 	addi $4, $8, 0
@@ -1940,8 +2044,14 @@ contDis: addi $6, $0, 0x10090000
 	jal insPilha
 	addi $4, $8, 0
 	jal insPilha
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	addi $6, $6, 32
+	jal contPontos
 	addi $4, $5, 0
-	addi $5, $0, 1
+	
+	addi $5, $0, 1 # esconde as pecas do computador
+	
 	addi $6, $0, 0
 	lui $7, 0x1009
 	addi $7, $7, 0x0e00
@@ -1954,6 +2064,9 @@ dJog1:	addi $5, $10, 0
 	jal insPilha
 	addi $4, $8, 0
 	jal insPilha
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	jal contPontos
 	addi $4, $5, 0
 	addi $5, $0, 0
 	addi $6, $0, 0
