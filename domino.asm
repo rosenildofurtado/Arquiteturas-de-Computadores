@@ -78,10 +78,11 @@ main: 	lui $4, 0x1009
 	#jal selPeca
 	lui $6, 0x1009
 	addi $6, $6, 0x0d00
+	addi $6, $6, 64
 	lui $7, 0x1009
 	addi $7, $7, 0x0b00
 	addi $7, $7, 40
-	#jal primPeca
+	jal primPeca
 vGanhou: j fim
 vPerdeu: j fim
 
@@ -1926,6 +1927,7 @@ contPontos: addi $4, $31, 0
 	bne $24, $25, carroca
 	sll $23, $24, 2
 	addi $23, $23, 32
+	add $23, $23, $6
 	sw $24, 0($23)
 carroca: lw $23, 28($6)
 	add $23, $23, $24
@@ -1955,9 +1957,15 @@ retPontos: addi $4, $31, 0
 	jal insPilha
 	lw $24, 0($7)
 	lw $25, 4($7)
-	lui $4, 0x1009
+	bne $24, $25, jCarroca
+	addi $4, $0, -1
+	sll $23, $24, 2
+	addi $23, $23, 32
+	add $23, $23, $6
+	sw $4, 0($23)
+jCarroca: lui $4, 0x1009
 	addi $4, $4, 0x0d00
-	addi $4, $4, 96
+	addi $4, $4, 128
 	lw $23, 28($6)
 	sub $23, $23, $24
 	sub $23, $23, $25
@@ -1973,7 +1981,7 @@ retPontos: addi $4, $31, 0
 	sw $23, 0($4)
 	lui $4, 0x1009
 	addi $4, $4, 0x0d00
-	addi $4, $4, 96
+	addi $4, $4, 128
 	sll $25, $25, 2
 	add $4, $4, $25
 	add $25, $6, $25
@@ -2046,7 +2054,7 @@ contDis: addi $6, $0, 0x10090000
 	jal insPilha
 	lui $6, 0x1009
 	addi $6, $6, 0x0d00
-	addi $6, $6, 32
+	addi $6, $6, 64
 	jal contPontos
 	addi $4, $5, 0
 	
