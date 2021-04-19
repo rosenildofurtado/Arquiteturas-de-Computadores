@@ -15,32 +15,33 @@
 # cores:	verdEsc,  amarelo,   vermEsc,  	vermelho,   verde
 .data 0x10090300
 	.word 256 512 20 40 4 # Dimensoes
+	.word 420 23 220 0x00ff0000 0x0000ff00 # pontos do indica vez
 
 .data 0x10090a00
 	.word -1 -1 103 13 0 -1 -1 129 13 0 -1 -1 155 13 0 -1 -1 181 13 0 -1 -1 207 13 0 -1 -1 233 13 0 
 	.word -1 -1 259 13 0 -1 -1 285 13 0 -1 -1 311 13 0 -1 -1 337 13 0 -1 -1 363 13 0 -1 -1 389 13 0 # pecas do jogador
-	.word 12 # quantidad de pecas
+	.word 12 0 # quantidad de pecas
 .data 0x10090b00
 	.word -1 -1 103 210 0 -1 -1 129 210 0 -1 -1 155 210 0 -1 -1 181 210 0 -1 -1 207 210 0 -1 -1 233 210 0 
 	.word -1 -1 259 210 0 -1 -1 285 210 0 -1 -1 311 210 0 -1 -1 337 210 0 -1 -1 363 210 0 -1 -1 389 210 0 # pecas do computador
-	.word 12 # quantidad de pecas
+	.word 12 1 # quantidad de pecas
 .data 0x10090c00
 	.word -1 -1 4 13 0 -1 -1 24 13 0 -1 -1 44 13 0 -1 -1 64 13 0 # pecas do morto
 .data 0x10090d00
 	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peças e quantos pontos o jogador tem
 	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peças e quantos pontos o computador tem
-	.word 8 8 8 8 8 8 8 # Total de peças que estao no jogo
+	.word 8 8 8 8 8 8 8 # Total de pecas que estao no jogo
 .data 0x10090e00
-	.word -1 -1 236 108 1
-	.word 0 # indica qual jogador comeca
+	.word -1 -1 226 108 1
+	.word 1 0 # indica qual jogador comeca e o jogador da vez
 .data 0x10091000
-	.word 8 0 -1 -1 206 128 1 -1 -1 186 108 1 -1 -1 166 128 1 -1 -1 146 108 1 -1 -1 126 128 1 -1 -1 106 108 1 
+	.word 8 -1 -1 -1 206 128 1 -1 -1 186 108 1 -1 -1 166 128 1 -1 -1 146 108 1 -1 -1 126 128 1 -1 -1 106 108 1 
 	.word -1 -1 86 128 1 -1 -1 66 108 1 -1 -1 46 128 1 -1 -1 26 108 1 -1 -1 6 128 1 -1 -1 6 88 0 
 	.word -1 -1 26 68 0 -1 -1 6 48 0 -1 -1 26 48 1 -1 -1 46 68 1 -1 -1 66 48 1 -1 -1 86 68 1 
 	.word -1 -1 106 48 1 -1 -1 126 68 1 -1 -1 146 48 1 -1 -1 166 68 1 -1 -1 186 48 1 -1 -1 206 68 1 
 	.word -1 -1 226 48 1 -1 -1 246 68 1 -1 -1 266 48 1
 .data 0x10091800
-	.word 8 0 -1 -1 246 128 1 -1 -1 266 108 1 -1 -1 286 128 1 -1 -1 306 108 1 -1 -1 326 128 1 -1 -1 346 108 1 
+	.word 8 -1 -1 -1 246 128 1 -1 -1 266 108 1 -1 -1 286 128 1 -1 -1 306 108 1 -1 -1 326 128 1 -1 -1 346 108 1 
 	.word -1 -1 366 128 1 -1 -1 386 108 1 -1 -1 406 128 1 -1 -1 426 108 1 -1 -1 446 128 1 -1 -1 466 108 1 
 	.word -1 -1 486 128 0 -1 -1 466 148 0 -1 -1 486 168 0 -1 -1 446 188 0 -1 -1 426 168 1 -1 -1 406 188 1 
 	.word -1 -1 386 168 1 -1 -1 366 188 1 -1 -1 346 168 1 -1 -1 326 188 1 -1 -1 306 168 1 -1 -1 286 188 1 
@@ -57,32 +58,16 @@ main: 	lui $4, 0x1009
 	lui $6, 0x1009
 	addi $6, $6, 0x0200 # cor do background
 	lw $6, 0($6)
-	jal bgColor # Background verde
-	
+	jal bgColor # Background verde	
 	jal strMorto
 	jal numeros # mostra os numeros de 1 a 12
-	addi $4, $0, 420
-	addi $5, $0, 23
-	lui $7, 0x1009
-	addi $7, $7, 0x0200 # cor do background
-	lw $7, 36($7)
-	jal indicaVez
-	addi $4, $0, 420
-	addi $5, $0, 220
-	lui $7, 0x1009
-	addi $7, $7, 0x0200 # cor do background
-	lw $7, 32($7)
-	jal indicaVez
+	jal passaVez
 	jal embaralhar
 	
-	#jal selPeca
-	lui $6, 0x1009
-	addi $6, $6, 0x0d00
-	addi $6, $6, 64
-	lui $7, 0x1009
-	addi $7, $7, 0x0b00
-	addi $7, $7, 40
-	jal primPeca
+pxJogada: jal selPeca
+	jal pecaComp
+	j pxJogada
+	
 vGanhou: j fim
 vPerdeu: j fim
 
@@ -91,9 +76,544 @@ fim:	addi $2, $0, 10
 	
 # ========= ROTINAS ============================
 
+#--------------PECA COMPUTADOR-------------------
+# Rotina para selecionar uma peca do computador
+# Entradas:	
+# Usa (sem preservar): $24, $25
+pecaComp: addi $4, $31, 0
+	jal insPilha
+	jal maisPeca
+	lui $8, 0x1009
+	addi $8, $8, 0x1000
+	lw $4, 4($8)
+	addi $5, $0, -1
+	bne $4, $5, maiorP	
+	jal escCarroca
+	addi $7, $2, 0
+	addi $5, $0, -1
+	beq $5, $7, maiorP
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	addi $6, $6, 64
+	jal primPeca
+	jal fimJogC
+
+maiorP: jal escMP
+	addi $4, $0, -1
+	beq $4, $2, fimJogC
+	addi $6, $0, 1
+	addi $7, $2, 0
+	jal jogaPeca
+	
+fimJogC: jal retPilha
+	addi $31, $3, 0
+	jr $31
+
+#--------------JOGA PECA-------------------
+# Rotina para jogar uma peca
+# Entradas:	$5 lado 0 para esquerda e 1 para direita
+#		$6 0 para jogador e 1 para computador
+#		#7 endereco da peca
+# Usa (sem preservar): $24, $25
+jogaPeca: addi $4, $31, 0
+	addi $2, $0, -1
+	jal insPilha
+	lui $8, 0x1009
+	addi $8, $8, 0x1000
+	bne $6, $0, todosL
+	bne $5, $0, ladoD	
+ladoE:	lw $4, 4($8)
+	lw $24, 0($7)
+	beq $4, $24, giraPeca
+	lw $24, 4($7)
+contGira: bne $4, $24, fimJogada
+	sw $24, 4($8)
+	lui $6, 0x1009
+	addi $6, $6, 0x0b00
+	slt $4, $7, $6
+	beq $4, $0, endContC
+	lw $4, -16($6)
+	addi $4, $4, -1
+	sw $4, -16($6)
+	jal insPilha
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	addi $4, $8, 0
+	jal insPilha
+	j joga
+	
+endContC: lw $4, 240($6)
+	addi $4, $4, -1
+	sw $4, 240($6)
+	jal insPilha
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	addi $6, $6, 64
+	addi $4, $8, 0
+	jal insPilha
+	j joga
+	
+giraPeca: sw $24, 4($8)
+	j contGira
+
+	
+ladoD:	addi $8, $8, 0x0800
+	j ladoE
+	
+
+todosL: lw $4, 4($8)
+	addi $5, $8, 0x0800
+	lw $24, 0($7)
+	lw $25, 4($7)
+	beq $4, $24, testSN1
+	beq $4, $25, testSN2
+	j ladoD
+testSN1: lw $6, 4($5)
+	beq $6, $25, verMaior
+testSN2: beq $6, $24, verMaior
+	j ladoE
+verMaior: addi $4, $24, 0
+	jal insPilha
+	addi $4, $25, 0
+	jal insPilha
+	lui $6, 0x1009
+	addi $6, $6, 0x0b00
+	slt $4, $7, $6
+	lui $5, 0x1009
+	addi $5, $5, 0x0d00
+	bne $4, $0, contVM
+	addi $5, $5, 64
+contVM:	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	addi $6, $6, 128
+	addi $4, $0, 8
+	jal retPilha
+	sll $25, $3, 2
+	add $24, $25, $6
+	add $23, $25, $5
+	lw $24, 0($24)
+	lw $23, 0($23)
+	sub $25, $4, $24
+	add $25, $25, $23
+	addi $23, $3, 0
+	jal retPilha
+	sll $24, $3, 2
+	add $6, $24, $6
+	add $5, $24, $5
+	lw $6, 0($6)
+	lw $5, 0($5)
+	sub $24, $4, $6
+	add $24, $24, $5
+	slt $5, $24, $25
+	beq $5, $0, ladoE
+	j ladoD
+
+joga:	jal retPontos
+	
+	lui $25, 0x1009
+	addi $25, $25, 0x1000
+	lw $24, 0($7)
+	sw $24, 4($25)
+	lui $25, 0x1009
+	addi $25, $25, 0x1800
+	lw $24, 4($7)
+	sw $24, 4($25)
+	lui $8, 0x1009
+	addi $8, $8, 0x0200
+	lw $8, 0($8)
+	addi $4, $7, 0
+	jal insPilha
+	lw $4, 8($7)
+	addi $4, $4, -3
+	lw $5, 12($7)
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	jal bordaRet
+	
+	jal retPilha
+	addi $7, $3, 0
+	
+	jal retPilha
+	lw $4, 0($3)
+	addi $25, $4, 20
+	sw $25, 0($3)
+	add $4, $4, $3
+	addi $5, $0, 0
+	addi $6, $0, 1
+	jal moveP
+	jal passaVez	
+	jal retPilha
+	beq $3, $0, vGanhou
+	
+fimJogada: jal retPilha
+	addi $31, $3, 0
+	jr $31
+
+#--------------PROCURA PECA-------------------
+# Rotina para procurar uma peca
+# Entradas:	$5 menor numero
+#		$6 maior numero
+#		#7 endereco
+# Saidas:	$2 Endereco da peca ou -1 se nao achar
+# Usa (sem preservar): $24, $25
+procPeca: addi $4, $31, 0
+	jal insPilha
+	addi $2, $0, -1
+	slt $4, $5, $6
+	bne $4, $0, trocP
+	addi $4, $5, 0
+	addi $5, $6, 0
+	addi $6, $4, 0
+	addi $4, $0, 12
+trocP:	beq $4, $0, fimProcP
+	lw $25, 0($7)
+	bne $25, $5, pxProcP
+	lw $25, 4($7)
+	bne $25, $6, pxProcP
+	addi $2, $7, 0
+	j fimProcP
+pxProcP: addi $4, $4, -1
+	addi $7, $7, 20
+	j trocP
+	
+fimProcP: jal retPilha
+	addi $31, $3, 0
+	jr $31
+
+
+#--------------ESCOLHE MAIOR PECA-------------------
+# Rotina para escolher o numero com mais pecas
+# Entradas:	
+# Saidas:	$2 endereco da peca
+# Usa (sem preservar): $24, $25
+escMP:	addi $4, $31, 0
+	jal insPilha
+	
+	lui $6, 0x1009
+	addi $6, $6, 0x1004
+	lw $7 0($6) # numero da ponta esquerda
+	slt $25, $7, $0
+	bne $25, $0, primJog # testa se e a primeira jogada
+	
+	addi $6, $6, 0x0800
+	lw $6 0($6)# numero da ponta direita
+	slt $25, $6, $7
+	addi $4, $6, 0
+	beq $25, $0, invM
+	addi $4, $7, 0
+	addi $7, $6, 0
+	addi $6, $4, 0
+invM:	lui $5, 0x1009
+	addi $5, $5, 0x0d00
+	addi $5, $5, 64
+	sll $25, $7, 2
+	add $25, $25, $5
+	lw $24, 0($25)
+	beq $24, $0, naoTPE
+	lw $23, 32($25)
+	bne $23, $7, testOutP
+	addi $5, $7, 0
+	addi $6, $7, 0
+	addi $4, $7, 0
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	jal procPeca
+	j fimEscMP
+	
+naoTPE: addi $7, $6, 0
+	lui $5, 0x1009
+	addi $5, $5, 0x0d00
+	addi $5, $5, 64
+	sll $25, $7, 2
+	add $25, $25, $5
+	lw $24, 0($25)
+	beq $24, $0, fimEscMP
+	lw $23, 32($25)
+	bne $23, $7, testOutP
+	addi $5, $7, 0
+	addi $6, $7, 0
+	addi $4, $7, 0
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	jal procPeca
+	j fimEscMP
+	
+testOutP: addi $5, $7, 0 
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	lw $6 248($7)
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	jal retPilha
+	addi $5, $3, 0 
+	jal retPilha
+	addi $7, $3, 0 
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	lw $6 252($7)
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	jal retPilha
+	addi $5, $3, 0 
+	jal retPilha
+	addi $7, $3, 0 
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	addi $6, $0, 6 
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	jal retPilha
+	addi $5, $3, 0 
+	jal retPilha
+	addi $7, $3, 0 
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	addi $6, $0, 5
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	jal retPilha
+	addi $5, $3, 0 
+	jal retPilha
+	addi $7, $3, 0 
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	addi $6, $0, 4
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	jal retPilha
+	addi $5, $3, 0 
+	jal retPilha
+	addi $7, $3, 0 
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	addi $6, $0, 3
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	jal retPilha
+	addi $5, $3, 0 
+	jal retPilha
+	addi $7, $3, 0 
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	addi $6, $0, 2
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	jal retPilha
+	addi $5, $3, 0 
+	jal retPilha
+	addi $7, $3, 0 
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	addi $6, $0, 1
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	jal retPilha
+	addi $5, $3, 0 
+	jal retPilha
+	addi $7, $3, 0 
+	addi $4, $7, 0 
+	jal insPilha
+	addi $4, $5, 0 
+	jal insPilha
+	addi $6, $0, 0
+	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, retPilT 
+	
+primJog: lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	lw $5 248($7)
+	lw $6 252($7)
+	jal procPeca
+	addi $4, $0, -1
+	bne $2, $4, fimEscMP
+	addi $8, $0, 6
+priEncont: slt $7, $8, $0
+	bne $7, $0, fimEscMP
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	lw $5 248($7)
+	lw $6 252($7)
+	jal procPeca
+	addi $4, $0, -1
+	bne $2, $4, fimEscMP
+	addi $8, $8, -1
+	jal priEncont
+
+retPilT: jal retPilha
+	jal retPilha
+fimEscMP: jal retPilha
+	addi $31, $3, 0
+	jr $31
+	
+#--------------ESCOLHE CARROCA-------------------
+# Rotina para escolher uma carroca
+# Entradas:	
+# Usa (sem preservar): $24, $25
+escCarroca: addi $4, $31, 0
+	jal insPilha
+	addi $5, $0, 5
+	addi $6, $0, 1
+	jal procCarroca
+	addi $7, $0, -1
+	bne $7, $2, fimProc
+	addi $5, $0, 4
+	addi $6, $0, 3
+	jal procCarroca
+	addi $7, $0, -1
+	bne $7, $2, fimProc
+	addi $5, $0, 6
+	addi $6, $0, 1
+	jal procCarroca
+	addi $7, $0, -1
+	bne $7, $2, fimProc
+
+fimEscC: jal retPilha
+	addi $31, $3, 0
+	jr $31
+	
+#-----------PROCURA CARROCA--------------
+# Rotina para o computador escolher uma carroca
+# Entradas:	$5 quantas pecas tem a carroca
+#		$6 carroca maior ou igual a que
+# Saidas:	$2 endereco da carroca
+# Usa (sem preservar): $23, $24 e $25	
+procCarroca: addi $2, $0, -1
+	addi $4, $31, 0
+	jal insPilha
+	lui $10, 0x1009
+	addi $10, $10, 0x0d00
+	addi $10, $10, 64
+	addi $4, $0, 6
+vCarrocas: slt $7, $4, $6
+	bne $7, $0, fimProc
+	sll $7, $4, 2
+	lui $11, 0x1009
+	addi $11, $11, 0x0d00
+	addi $11, $11, 128
+	add $11, $11, $7
+	lw $11, 0($11)
+	addi $8, $0, 8
+	sub $11, $8, $11
+	add $7, $10, $7
+	addi $7, $7, 32
+	lw $9 0($7)
+	bne $9, $4, dimProc
+	addi $7, $7, -32
+	lw $9 0($7)
+	add $9, $9, $11
+	bne $9, $5, dimProc
+	j encCarroca
+	
+	
+dimProc: addi $4, $4, -1
+	j vCarrocas
+	
+encCarroca: lui $9, 0x1009
+	addi $9, $9, 0x0b00
+	addi $7, $7, 32
+	sw $2, 0($7)
+	addi $5, $0, 0
+	addi $6, $0, 12
+buscCarroca: beq $0, $6, fimProc
+	lw $7, 0($9)
+	bne $7, $4, contBusca
+	lw $7, 4($9)
+	bne $7, $4, contBusca
+	addi $2, $9, 0
+	j fimProc
+	
+contBusca: addi $9, $9, 20
+	addi $6, $6, -1
+	j buscCarroca
+
+fimProc: jal retPilha
+	addi $31, $3, 0
+	jr $31
+
+#--------------MAIS PECAS-------------------
+# Rotina para ver qual numero tem mais pecas
+# Entradas: 
+# Usa (sem preservar): $23, $24 e $25
+maisPeca: addi $4, $31, 0
+	jal insPilha
+	
+	addi $4, $0, 6
+	addi $24, $0, 0 # maior
+	addi $23, $0, 0 # segundo maior
+forMP:	lui $7, 0x1009
+	addi $7, $7, 0x0d00
+	addi $7, $7, 64
+	lui $5, 0x1009
+	addi $5, $5, 0x0d00
+	addi $5, $5, 128
+	slt $25, $4, $0
+	bne $25, $0, fimMP
+	sll $6, $4, 2
+	add $5, $5, $6
+	add $6, $6, $7
+	lw $6, 0($6)
+	beq $6, $0, incForMP
+	addi $25, $0, 8
+	lw $5, 0($5)
+	sub $5, $25, $5 
+	add $6, $6, $5
+	slt $25, $24, $6
+	beq $25, $0, testaSM # testa segundo maior
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	addi $7, $7, 248
+	lw $5, 0($7)
+	sw $5, 4($7)
+	sw $4, 0($7)
+	add $23, $0, $24
+	add $24, $0, $6
+	
+incForMP: addi $4, $4, -1
+	j forMP
+testaSM: slt $25, $23, $6
+	beq $25, $0, incForMP
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	addi $7, $7, 248
+	sw $4, 4($7)
+	add $23, $0, $6
+	j incForMP
+	
+fimMP:	jal retPilha
+	addi $31, $3, 0
+	jr $31
+
 #--------------SELECIONA PECA-------------------
-# Rotina para atrasar o programa
-# Entradas:	$4 tempo 
+# Rotina para selecionar uma peca
+# Entradas:	
 # Usa (sem preservar): $24, $25
 selPeca: addi $4, $31, 0
 	jal insPilha
@@ -103,10 +623,10 @@ selPeca: addi $4, $31, 0
 	addi $10, $0, 0 # contador
 	lw $11, 240($9)
 selProx: lw $12, 0($9)
-	slt $12, $12, $0 # ver se existe uma peca. -1 = não tem
+	slt $12, $12, $0 # ver se existe uma peca. -1 = nao tem
 	beq $12, $0, selRet
 	addi $9, $9, 20
-	j selProx # Se não tem, checa a proxima posicao
+	j selProx # Se nao tem, checa a proxima posicao
 selRet:	addi $10, $10, 1
 bordaPeca: lui $8, 0x1009
 	addi $8, $8, 0x0200
@@ -179,15 +699,16 @@ mudaSel: lui $8, 0x1009
 	j bordaPeca
 	
 primeira: lui $8, 0x1009
-	addi $8, $8, 0x0e00
-	lw $4, 24($8)
-	bne $4, $0, moveq
-	addi $5, $0, 12
-	bne $11, $5, moveq
-	addi $11, $11, -1
-	sw $11, 240($13)
+	addi $8, $8, 0x1000
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	lw $4, 4($8)
+	addi $5, $0, -1
+	bne $4, $5, moveq
+	addi $7, $9, 0
 	jal primPeca
 	jal retPilha
+	j fimSel
 	
 moveq:	jal retPilha
 	lui $8, 0x1009
@@ -260,11 +781,19 @@ primPeca: addi $4, $31, 0
 	addi $5, $0, 0
 	addi $6, $0, 1
 	jal moveP
+	jal passaVez	
 	
+	lui $8, 0x1009
+	addi $8, $8, 0x0a00
+	lw $4, 240($8)
+	addi $4, $4, -1
+	sw $4, 240($8)
 	
 	jal retPilha
 	addi $31, $3, 0
 	jr $31
+	
+	
 
 #---------------ATRASO-----------------
 # Rotina para atrasar o programa
@@ -695,11 +1224,38 @@ fimFori: jal retPilha
 	addi $31, $3, 0
 	jr $31
 
+#---------------PASSA VEZ-------------
+# Rotina para mudar os indicadores de vez
+# Entrada: $4, $5 e $7 onde:
+#	$4 = px, $5=py, $7=cor
+# Usa sem preservar  $8 ao $11
+passaVez: addi $4, $31, 0
+	jal insPilha
+	lui $4, 0x1009
+	addi $4, $4, 0x0300
+	jal insPilha
+	lw $6, 32($4)
+	lw $7, 36($4)
+	sw $7, 32($4)
+	sw $6, 36($4)
+	lw $5, 24($4)
+	lw $4, 20($4)
+	jal indicaVez
+	jal retPilha
+	lw $4, 20($3)
+	lw $5, 28($3)
+	lw $7, 36($3)
+	jal indicaVez
+	
+	jal retPilha
+	addi $31, $3, 0
+	jr $31
 
+	
 #---------------INDICA VEZ-------------
 # Rotina para desenhar um circulo para indicar de quem e a vez
-# Entrada: $4, $5, $6, $7 e $8 onde:
-#	$4 = px, $5=py, $6=tamx, $7=jogador e $8=cor
+# Entrada: $4, $5 e $7 onde:
+#	$4 = px, $5=py, $7=cor
 # Usa sem preservar  $8 ao $11
 	
 indicaVez: add $9, $0, $4 # px
@@ -2098,7 +2654,7 @@ morto:	jal retPilha
 	addi $5, $0, 1
 	j dist
 dist:	jal moveP
-	addi $4, $0, 236
+	addi $4, $0, 226
 	lui $7, 0x1009
 	addi $7, $7, 0x0e00
 	sw $4, 8($7)
