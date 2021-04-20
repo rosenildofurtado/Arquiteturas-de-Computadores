@@ -656,7 +656,12 @@ verCaracter: lw $4, 4($4)
 	j lerTecl
 	
 char_a:	jal retPilha
-	addi $13, $9, 0
+selProx1: lw $12, 0($9)
+	slt $12, $12, $0 # ver se existe uma peca. -1 = nao tem
+	beq $12, $0, selRet1
+	addi $9, $9, -20
+	j selProx1 # Se nao tem, checa a proxima posicao
+selRet1: addi $13, $9, 0
 	addi $7, $0, 1
 	slt $7, $7, $10
 	beq $7, $0, lerTecl
@@ -668,7 +673,12 @@ selReduz: addi $9, $9, -20
 	j mudaSel
 	
 char_d:	jal retPilha
-	addi $13, $9, 0
+selProx2: lw $12, 0($9)
+	slt $12, $12, $0 # ver se existe uma peca. -1 = nao tem
+	beq $12, $0, selRet2
+	addi $9, $9, 20
+	j selProx1 # Se nao tem, checa a proxima posicao
+selRet2: addi $13, $9, 0
 	lui $6, 0x1009
 	addi $6, $6, 0x0a00
 	lw $7, 240($6)
@@ -711,12 +721,18 @@ primeira: lui $8, 0x1009
 	j fimSel
 	
 moveq:	jal retPilha
-	lui $8, 0x1009
-	addi $8, $8, 0x1000
-	lw $8, 24($8)
+	addi $8, $0, 'q'
+	beq $8, $3, ladoEsq
+	addi $5, $0, 1
+	addi $6, $0, 0
+	addi $7, $9, 0
+	jal jogaPeca
 	j fimSel
 	
-
+ladoEsq: addi $5, $0, 0
+	addi $6, $0, 0
+	addi $7, $9, 0
+	jal jogaPeca
 
 char_e:	lui $8, 0x1009
 	addi $8, $8, 0x0e00
