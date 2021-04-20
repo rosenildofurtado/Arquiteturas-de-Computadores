@@ -33,11 +33,11 @@
 	.word 8 8 8 8 8 8 8 # Total de pecas que estao no jogo
 .data 0x10090e00
 	.word -1 -1 226 108 1
-	.word 1 0 # indica qual jogador comeca e o jogador da vez
+	.word 1 0 0 # indica qual jogador comeca, o jogador da vez e se passou
 .data 0x10091000
-	.word 8 -1 -1 -1 206 128 1 -1 -1 186 108 1 -1 -1 166 128 1 -1 -1 146 108 1 -1 -1 126 128 1 -1 -1 106 108 1 
-	.word -1 -1 86 128 1 -1 -1 66 108 1 -1 -1 46 128 1 -1 -1 26 108 1 -1 -1 6 128 1 -1 -1 6 88 0 
-	.word -1 -1 26 68 0 -1 -1 6 48 0 -1 -1 26 48 1 -1 -1 46 68 1 -1 -1 66 48 1 -1 -1 86 68 1 
+	.word 8 -1 -1 -1 206 128 3 -1 -1 186 108 3 -1 -1 166 128 3 -1 -1 146 108 3 -1 -1 126 128 3 -1 -1 106 108 3 
+	.word -1 -1 86 128 3 -1 -1 66 108 3 -1 -1 46 128 3 -1 -1 26 108 3 -1 -1 6 128 3 -1 -1 6 88 2 
+	.word -1 -1 26 68 2 -1 -1 6 48 2 -1 -1 26 48 1 -1 -1 46 68 1 -1 -1 66 48 1 -1 -1 86 68 1 
 	.word -1 -1 106 48 1 -1 -1 126 68 1 -1 -1 146 48 1 -1 -1 166 68 1 -1 -1 186 48 1 -1 -1 206 68 1 
 	.word -1 -1 226 48 1 -1 -1 246 68 1 -1 -1 266 48 1
 .data 0x10091800
@@ -64,8 +64,12 @@ main: 	lui $4, 0x1009
 	jal passaVez
 	jal embaralhar
 	
+	addi $4, $0, 1
+	beq $4, $0, pxJogada
+	jal passaVez
+	j compComeca
 pxJogada: jal selPeca
-	jal pecaComp
+compComeca: jal pecaComp
 	j pxJogada
 	
 vGanhou: j fim
@@ -82,7 +86,12 @@ fim:	addi $2, $0, 10
 # Usa (sem preservar): $24, $25
 pecaComp: addi $4, $31, 0
 	jal insPilha
-	jal maisPeca
+	addi $5, $0, 1
+	jal temPeca
+	bne $2, $0, cNaoPas
+	addi $5, $0, 1
+	jal passou
+cNaoPas: jal maisPeca
 	lui $8, 0x1009
 	addi $8, $8, 0x1000
 	lw $4, 4($8)
@@ -114,6 +123,7 @@ fimJogC: jal retPilha
 # Entradas:	$5 lado 0 para esquerda e 1 para direita
 #		$6 0 para jogador e 1 para computador
 #		#7 endereco da peca
+# Saidas: $2 0 para ganhou e outro valor para nao ganhou
 # Usa (sem preservar): $24, $25
 jogaPeca: addi $4, $31, 0
 	addi $2, $0, -1
@@ -121,7 +131,26 @@ jogaPeca: addi $4, $31, 0
 	lui $8, 0x1009
 	addi $8, $8, 0x1000
 	bne $6, $0, todosL
-	bne $5, $0, ladoD	
+	beq $5, $0, ladoE
+ladoD:	addi $8, $8, 0x0800	
+	lw $4, 4($8)
+	lw $24, 0($7)
+	bne $4, $24, giraPeca
+	lw $24, 4($7)
+	sw $24, 4($8)
+	lw $4, 0($8)
+	addi $4, $4, 20
+	sw $24, 0($8)
+	lui $5, 0x1009
+	addi $5, $5, 0x0b00
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	addi $6, $6, 64
+	slt $4, $7, $5
+	beq $4, $0, joga
+	addi $6, $6, -64
+	j joga
+	
 ladoE:	lw $4, 4($8)
 	lw $24, 0($7)
 	beq $4, $24, giraPeca
@@ -156,10 +185,6 @@ endContC: lw $4, 240($6)
 giraPeca: sw $24, 4($8)
 	j contGira
 
-	
-ladoD:	addi $8, $8, 0x0800
-	j ladoE
-	
 
 todosL: lw $4, 4($8)
 	addi $5, $8, 0x0800
@@ -208,21 +233,19 @@ contVM:	lui $6, 0x1009
 	beq $5, $0, ladoE
 	j ladoD
 
-joga:	jal retPontos
+# tem que chegar aqui com:
+# $6 = endereco do contador
+# $7 = endereco da peca
+# $8 = endereco de destino
+joga:	addi $4, $7, 0
+	jal insPilha
+	addi $4, $8, 0
+	jal insPilha
+	jal retPontos
 	
-	lui $25, 0x1009
-	addi $25, $25, 0x1000
-	lw $24, 0($7)
-	sw $24, 4($25)
-	lui $25, 0x1009
-	addi $25, $25, 0x1800
-	lw $24, 4($7)
-	sw $24, 4($25)
 	lui $8, 0x1009
 	addi $8, $8, 0x0200
 	lw $8, 0($8)
-	addi $4, $7, 0
-	jal insPilha
 	lw $4, 8($7)
 	addi $4, $4, -3
 	lw $5, 12($7)
@@ -232,21 +255,47 @@ joga:	jal retPontos
 	jal bordaRet
 	
 	jal retPilha
-	addi $7, $3, 0
-	
+	addi $8, $3, 0
 	jal retPilha
-	lw $4, 0($3)
-	addi $25, $4, 20
-	sw $25, 0($3)
-	add $4, $4, $3
+	addi $4, $3, 0
+	jal insPilha
+	addi $4, $8, 0
 	addi $5, $0, 0
 	addi $6, $0, 1
+	addi $7, $3, 0
 	jal moveP
-	jal passaVez	
-	jal retPilha
-	beq $3, $0, vGanhou
 	
-fimJogada: jal retPilha
+	jal retPilha
+	lui $8, 0x1009
+	addi $8, $8, 0x0b00
+	slt $4, $3, $8
+	beq $4, $0, verCont
+	addi $8, $8, -0x0100
+verCont: lw $2, 240($8)
+	jal passaVez	
+		
+fimJogada: lui $8, 0x1009
+	addi $8, $8, 0x0e00
+	lw $4, 28($8)
+	addi $4, $0, 0
+	sw $4, 28($8)
+	
+	jal retPilha
+	addi $31, $3, 0
+	jr $31
+	
+#--------------TRANCOU-------------------
+# Rotina do tranca
+# Entradas:	$5 menor numero
+#		$6 maior numero
+#		#7 endereco
+# Saidas:	$2 Endereco da peca ou -1 se nao achar
+# Usa (sem preservar): $24, $25
+trancou: jal retPilha
+	addi $4, $31, 0
+	jal insPilha
+	
+	jal retPilha
 	addi $31, $3, 0
 	jr $31
 
@@ -618,6 +667,14 @@ fimMP:	jal retPilha
 # Usa (sem preservar): $24, $25
 selPeca: addi $4, $31, 0
 	jal insPilha
+	addi $5, $0, 0
+	jal temPeca
+	bne $2, $0, jNaoPas
+	
+	addi $5, $0, 0
+	jal passou
+	j fimSel
+jNaoPas:
 	lui $9, 0x1009
 	addi $9, $9, 0x0a00
 	addi $13, $9, 0
@@ -650,11 +707,22 @@ verCaracter: lw $4, 4($4)
 	addi $5, $0, 'd'
 	beq $4, $5, char_d
 	addi $5, $0, 'q'
-	beq $4, $5, primeira
+	beq $4, $5, primeiraE
 	addi $5, $0, 'e'
-	beq $4, $5, primeira
+	beq $4, $5, primeiraD
 	jal retPilha
 	j lerTecl
+	
+primeiraE: addi $7, $9, 0
+	addi $5, $0, 0
+	jal pecaErrada
+	beq $2, $0, lerTecl
+	j primeira
+primeiraD: addi $7, $9, 0
+	addi $5, $0, 1
+	jal pecaErrada
+	beq $2, $0, lerTecl
+	j primeira
 	
 char_a:	jal retPilha
 	addi $13, $9, 0
@@ -803,6 +871,11 @@ primPeca: addi $4, $31, 0
 dimP:	lw $4, 240($8)
 	addi $4, $4, -1
 	sw $4, 240($8)
+	lui $8, 0x1009
+	addi $8, $8, 0x0e00
+	lw $4, 28($8)
+	addi $4, $0, 0
+	sw $4, 28($8)
 	
 	jal retPilha
 	addi $31, $3, 0
@@ -832,7 +905,8 @@ fimAtr:	jr $31
 # Rotina para inserir o PC na pilha
 # Entradas:	$4 $31 anterior
 # Usa (sem preservar): $24, $25
-insPilha: addi $25, $0, 0x10090400
+insPilha: lui $25, 0x1009
+	addi $25, $25, 0x0400
 	lw $24, 0($25)
 	addi $24, $24, 4
 	sw $24, 0($25)
@@ -844,7 +918,8 @@ insPilha: addi $25, $0, 0x10090400
 # Rotina para retirar o PC da pilha
 # Saidas: $3	
 # Usa (sem preservar): $24, $25
-retPilha: addi $25, $0, 0x10090400
+retPilha: lui $25, 0x1009
+	addi $25, $25, 0x0400
 	lw $24, 0($25)
 	add $3, $25, $24
 	lw $3, 0($3)
@@ -1147,7 +1222,7 @@ moveP:	addi $9, $4, 0 # endereco de destino
 	addi $7, $3, 0
 	jal retPilha
 	addi $5, $3, 0
-	sw $5, 16($7) # guarda o novo valor de gira na origem
+	#sw $5, 16($7) # guarda o novo valor de gira na origem
 	jal retPilha
 	addi $6, $3, 0
 	addi $4, $6, 0
@@ -1238,12 +1313,114 @@ conti:	addi $22, $22, 1
 fimFori: jal retPilha 
 	addi $31, $3, 0
 	jr $31
+	
+#---------------TEM PECA-------------
+# Rotina para ver se tem a peca
+# Entrada: 	$5 0 para jogador ou 1 para computador
+# Saidas: 	$2 0 para nao tem e 1 para tem
+# Usa sem preservar: 
+temPeca: addi $4, $31, 0
+	jal insPilha
+	addi $2, $0, 0
+	lui $4, 0x1009
+	addi $4, $4, 0x0d00
+	beq $5, $0, verJogador
+	addi $4, $4, 64
+verJogador: lui $6, 0x1009
+	addi $6, $6, 0x1004
+	lw $5, 0($6)
+	sll $5, $5, 2
+	add $5, $5, $4
+	lw $5, 0($5)
+	bne $5, $0, temPec
+	addi $6, $6, 0x0800
+	lw $5, 0($6)
+	sll $5, $5, 2
+	add $5, $5, $4
+	lw $5, 0($5)
+	beq $5, $0, fimTemP
+temPec: addi $2, $0, 1
+	
+fimTemP: jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
+#---------------PASSOU-------------
+# Rotina para indicar que passou 
+# Entrada: 	$5 0 para jogador ou 1 para computador
+# Saidas: 	
+# Usa sem preservar: 
+passou: addi $4, $31, 0
+	jal insPilha
+	jal indAmarelo
+	
+	lui $4, 0x1009
+	addi $4, $4, 0x0e00
+	lw $5, 28($4)
+	bne $5, $0, trancou
+	addi $5, $5, 1
+	sw $5, 28($4)
+	jal passaVez
+	
+fimPassou: jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
+#---------------PECA ERRADA-------------
+# Rotina para ver se a peca escolhida esta errada 
+# Entrada: 	$5 lado 0 para esquerdo e 1 para direito
+#		$7 endereco da peca
+# Saidas: 	$2 0 para sim e 1 para nao
+# Usa sem preservar: 
+pecaErrada: addi $4, $31, 0
+	jal insPilha
+	addi $2, $0, 0
+	lui $4, 0x1009
+	addi $4, $4, 0x1000
+	beq $5, $0, testPEE
+	addi $4, $4, 0x0800
+testPEE: lw $5, 4($4)
+	lw $6, 0($7)
+	beq $5, $6, taCerta
+	lw $6, 4($7)
+	beq $5, $6, taCerta
+	addi $5, $0, 0
+	jal indAmarelo
+	j fimPErr
+taCerta: addi $2, $0, 1	
+fimPErr: jal retPilha 
+	addi $31, $3, 0
+	jr $31
 
+#---------------INDICA AMARELO-------------
+# Rotina para mudar o indicador para amarelo
+# Entrada: $5 0 para jogador ou 1 para computador
+# Saidas:
+# Usa sem preservar  $25
+indAmarelo: addi $4, $31, 0
+	jal insPilha
+	lui $4, 0x1009
+	addi $4, $4, 0x0300
+	addi $25, $5, 0
+	lui $7, 0x1009
+	addi $7, $7, 0x0200
+	lw $7, 24($7)
+	lw $4, 20($4)
+	lw $5, 24($4)
+	beq $25, $0, pintaInd
+	lw $5, 28($4)
+pintaInd: jal indicaVez
+	addi $4, $0, 500
+	jal atrasar
+fimAmarelo: jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
 #---------------PASSA VEZ-------------
 # Rotina para mudar os indicadores de vez
-# Entrada: $4, $5 e $7 onde:
-#	$4 = px, $5=py, $7=cor
-# Usa sem preservar  $8 ao $11
+# Entrada: 
+# Saidas:
+# Usa sem preservar:
 passaVez: addi $4, $31, 0
 	jal insPilha
 	lui $4, 0x1009
@@ -2629,7 +2806,7 @@ contDis: addi $6, $0, 0x10090000
 	jal contPontos
 	addi $4, $5, 0
 	
-	addi $5, $0, 1 # esconde as pecas do computador
+	addi $5, $0, 0 # esconde as pecas do computador
 	
 	addi $6, $0, 0
 	lui $7, 0x1009
