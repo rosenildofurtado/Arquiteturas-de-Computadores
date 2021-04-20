@@ -174,7 +174,7 @@ testSN2: beq $6, $24, verMaior
 	j ladoE
 verMaior: addi $4, $24, 0
 	jal insPilha
-	addi $4, $25, 0
+	lw $4, 4($7)
 	jal insPilha
 	lui $6, 0x1009
 	addi $6, $6, 0x0b00
@@ -298,6 +298,7 @@ escMP:	addi $4, $31, 0
 	
 	addi $6, $6, 0x0800
 	lw $6 0($6)# numero da ponta direita
+	beq $6, $7, testOutP
 	slt $25, $6, $7
 	addi $4, $6, 0
 	beq $25, $0, invM
@@ -656,29 +657,19 @@ verCaracter: lw $4, 4($4)
 	j lerTecl
 	
 char_a:	jal retPilha
-selProx1: lw $12, 0($9)
-	slt $12, $12, $0 # ver se existe uma peca. -1 = nao tem
-	beq $12, $0, selRet1
-	addi $9, $9, -20
-	j selProx1 # Se nao tem, checa a proxima posicao
-selRet1: addi $13, $9, 0
+	addi $13, $9, 0
 	addi $7, $0, 1
 	slt $7, $7, $10
 	beq $7, $0, lerTecl
 	addi $7, $0, -1
 selReduz: addi $9, $9, -20
-	lw $6, 8($9)
+	lw $6, 0($9)
 	beq $6, $7, selReduz
 	addi $10, $10, -1
 	j mudaSel
 	
 char_d:	jal retPilha
-selProx2: lw $12, 0($9)
-	slt $12, $12, $0 # ver se existe uma peca. -1 = nao tem
-	beq $12, $0, selRet2
-	addi $9, $9, 20
-	j selProx1 # Se nao tem, checa a proxima posicao
-selRet2: addi $13, $9, 0
+	addi $13, $9, 0
 	lui $6, 0x1009
 	addi $6, $6, 0x0a00
 	lw $7, 240($6)
@@ -686,7 +677,7 @@ selRet2: addi $13, $9, 0
 	beq $7, $0, lerTecl
 	addi $7, $0, -1
 selAum: addi $9, $9, 20
-	lw $6, 8($9)
+	lw $6, 0($9)
 	beq $6, $7, selAum # testa se tem peça na posicao. -1 = nao tem
 	addi $10, $10, 1
 	j mudaSel
@@ -792,6 +783,8 @@ primPeca: addi $4, $31, 0
 	
 	jal retPilha
 	addi $7, $3, 0
+	addi $4, $7, 0
+	jal insPilha
 	lui $4, 0x1009
 	addi $4, $4, 0x0e00
 	addi $5, $0, 0
@@ -799,9 +792,15 @@ primPeca: addi $4, $31, 0
 	jal moveP
 	jal passaVez	
 	
+	jal retPilha
+	addi $7, $3, 0
+	lui $8, 0x1009
+	addi $8, $8, 0x0b00
+	slt $7, $7, $8
+	beq $7, $0, dimP
 	lui $8, 0x1009
 	addi $8, $8, 0x0a00
-	lw $4, 240($8)
+dimP:	lw $4, 240($8)
 	addi $4, $4, -1
 	sw $4, 240($8)
 	
