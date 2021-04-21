@@ -138,9 +138,6 @@ ladoD:	addi $8, $8, 0x0800
 	bne $4, $24, giraPeca
 	lw $24, 4($7)
 	sw $24, 4($8)
-	lw $4, 0($8)
-	addi $4, $4, 20
-	sw $24, 0($8)
 	lui $5, 0x1009
 	addi $5, $5, 0x0b00
 	lui $6, 0x1009
@@ -183,6 +180,10 @@ endContC: lw $4, 240($6)
 	j joga
 	
 giraPeca: sw $24, 4($8)
+	addi $4, $24, 0
+	lw $24, 4($7)
+	sw $24, 4($7)
+	sw $4, 0($7)
 	j contGira
 
 
@@ -255,16 +256,18 @@ joga:	addi $4, $7, 0
 	jal bordaRet
 	
 	jal retPilha
-	addi $8, $3, 0
+	addi $17, $3, 0
 	jal retPilha
 	addi $4, $3, 0
 	jal insPilha
-	addi $4, $8, 0
+	addi $4, $17, 0
 	addi $5, $0, 0
 	addi $6, $0, 1
 	addi $7, $3, 0
 	jal moveP
-	
+	lw $4, 0($17)
+	addi $4, $4, 20
+	sw $24, 0($17)
 	jal retPilha
 	lui $8, 0x1009
 	addi $8, $8, 0x0b00
@@ -670,7 +673,6 @@ selPeca: addi $4, $31, 0
 	addi $5, $0, 0
 	jal temPeca
 	bne $2, $0, jNaoPas
-	
 	addi $5, $0, 0
 	jal passou
 	j fimSel
@@ -1399,16 +1401,16 @@ fimPErr: jal retPilha
 # Usa sem preservar  $25
 indAmarelo: addi $4, $31, 0
 	jal insPilha
-	lui $4, 0x1009
-	addi $4, $4, 0x0300
+	lui $6, 0x1009
+	addi $6, $6, 0x0300
 	addi $25, $5, 0
 	lui $7, 0x1009
 	addi $7, $7, 0x0200
 	lw $7, 24($7)
-	lw $4, 20($4)
-	lw $5, 24($4)
+	lw $5, 24($6)
+	lw $4, 20($6)
 	beq $25, $0, pintaInd
-	lw $5, 28($4)
+	lw $5, 28($6)
 pintaInd: jal indicaVez
 	addi $4, $0, 500
 	jal atrasar
