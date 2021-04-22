@@ -43,9 +43,9 @@
 .data 0x10091800
 	.word 8 -1 -1 -1 246 128 1 -1 -1 266 108 1 -1 -1 286 128 1 -1 -1 306 108 1 -1 -1 326 128 1 -1 -1 346 108 1 
 	.word -1 -1 366 128 1 -1 -1 386 108 1 -1 -1 406 128 1 -1 -1 426 108 1 -1 -1 446 128 1 -1 -1 466 108 1 
-	.word -1 -1 486 128 0 -1 -1 466 148 0 -1 -1 486 168 0 -1 -1 446 188 0 -1 -1 426 168 1 -1 -1 406 188 1 
-	.word -1 -1 386 168 1 -1 -1 366 188 1 -1 -1 346 168 1 -1 -1 326 188 1 -1 -1 306 168 1 -1 -1 286 188 1 
-	.word -1 -1 266 168 1 -1 -1 246 188 1 -1 -1 226 168 1
+	.word -1 -1 486 128 0 -1 -1 466 148 0 -1 -1 486 168 0 -1 -1 446 188 0 -1 -1 426 168 3 -1 -1 406 188 3 
+	.word -1 -1 386 168 3 -1 -1 366 188 3 -1 -1 346 168 3 -1 -1 326 188 3 -1 -1 306 168 3 -1 -1 286 188 3 
+	.word -1 -1 266 168 3 -1 -1 246 188 3 -1 -1 226 168 3
 
 #===============.TEXT=====================
 .text
@@ -69,7 +69,9 @@ main: 	lui $4, 0x1009
 	jal passaVez
 	j compComeca
 pxJogada: jal selPeca
+	jal impPedras
 compComeca: jal pecaComp
+	jal impPedras
 	j pxJogada
 	
 vGanhou: j fim
@@ -91,6 +93,7 @@ pecaComp: addi $4, $31, 0
 	bne $2, $0, cNaoPas
 	addi $5, $0, 1
 	jal passou
+	j fimJogC
 cNaoPas: jal maisPeca
 	lui $8, 0x1009
 	addi $8, $8, 0x1000
@@ -110,7 +113,6 @@ cNaoPas: jal maisPeca
 maiorP: jal escMP
 	addi $4, $0, -1
 	beq $4, $2, fimJogC
-	addi $6, $0, 1
 	addi $7, $2, 0
 	jal jogaPeca
 	
@@ -120,129 +122,90 @@ fimJogC: jal retPilha
 
 #--------------JOGA PECA-------------------
 # Rotina para jogar uma peca
-# Entradas:	$5 lado 0 para esquerda e 1 para direita
-#		$6 0 para jogador e 1 para computador
-#		#7 endereco da peca
+# Entradas:	$7 endereco da peca
 # Saidas: $2 0 para ganhou e outro valor para nao ganhou
 # Usa (sem preservar): $24, $25
 jogaPeca: addi $4, $31, 0
-	addi $2, $0, -1
 	jal insPilha
 	lui $8, 0x1009
-	addi $8, $8, 0x1000
-	bne $6, $0, todosL
-	beq $5, $0, ladoE
-ladoD:	addi $8, $8, 0x0800	
+	addi $8, $8, 0x1000	
 	lw $4, 4($8)
-	lw $24, 0($7)
-	bne $4, $24, giraPeca
+	addi $5, $8, 0x0800
+	lw $6, 4($5)
+	bne $4, $6, contAnalize # se as pontas sao iguais, tanto faz o lado
+	jal jogaDir
+	j fimJogada
+	
+contAnalize:	lw $24, 0($7)
+	lw $25, 4($7)
+	bne $24, $25, nCarroc
+	beq $24, $4, jLadEsq
+	jal jogaDir
+	j fimJogada
+jLadEsq: jal jogaEsq
+	j fimJogada
+	
+nCarroc: beq $4, $24, jLadEsq
+	beq $4, $25, jLadEsq
+	jal jogaDir
+	j fimJogada
+
+	
+fimJogada: jal retPilha
+	addi $31, $3, 0
+	jr $31
+	
+#--------------JOGA NA ESQUERDA-------------------
+# Rotina para jogar uma peca na ponta esquerda
+# Entradas:	$7 endereco da peca
+# Saidas: $2 0 para ganhou e outro valor para nao ganhou
+# Usa (sem preservar): $8, $24, $25
+jogaEsq: addi $4, $31, 0
+	addi $2, $0, -1
+	jal insPilha
+	
+	lui $8, 0x1009
+	addi $8, $8, 0x1000	 # enderecos das pedras da direita
+	lw $4, 4($8) # ler o numero da ponta
+	lw $24, 0($7) 
+	bne $4, $24, giraPecE # compara se os números sao iguais
 	lw $24, 4($7)
-	sw $24, 4($8)
-	lui $5, 0x1009
+	sw $24, 4($8) # grava o novo numero da ponta
+	
+contGiE:	lui $5, 0x1009
 	addi $5, $5, 0x0b00
 	lui $6, 0x1009
 	addi $6, $6, 0x0d00
 	addi $6, $6, 64
 	slt $4, $7, $5
-	beq $4, $0, joga
+	beq $4, $0, verContE
 	addi $6, $6, -64
-	j joga
-	
-ladoE:	lw $4, 4($8)
-	lw $24, 0($7)
-	beq $4, $24, giraPeca
-	lw $24, 4($7)
-contGira: bne $4, $24, fimJogada
-	sw $24, 4($8)
-	lui $6, 0x1009
-	addi $6, $6, 0x0b00
-	slt $4, $7, $6
-	beq $4, $0, endContC
-	lw $4, -16($6)
+	addi $5, $5, -0x0100
+verContE: lw $4, 240($5)
 	addi $4, $4, -1
-	sw $4, -16($6)
+	sw $4, 240($5)
 	jal insPilha
-	lui $6, 0x1009
-	addi $6, $6, 0x0d00
-	addi $4, $8, 0
+	lw $5, 0($8)
+	add $4, $5, $8 # endereco de destino
 	jal insPilha
-	j joga
+	addi $5, $5, 20
+	sw $5, 0($8) # atualiza a posicao do proximo endereco
+	addi $4, $7, 0
+	jal insPilha
+	j jogaE
 	
-endContC: lw $4, 240($6)
-	addi $4, $4, -1
-	sw $4, 240($6)
-	jal insPilha
-	lui $6, 0x1009
-	addi $6, $6, 0x0d00
-	addi $6, $6, 64
-	addi $4, $8, 0
-	jal insPilha
-	j joga
-	
-giraPeca: sw $24, 4($8)
+giraPecE: sw $24, 4($8) # grava o novo numero da ponta
 	addi $4, $24, 0
 	lw $24, 4($7)
-	sw $24, 4($7)
-	sw $4, 0($7)
-	j contGira
-
-
-todosL: lw $4, 4($8)
-	addi $5, $8, 0x0800
-	lw $24, 0($7)
-	lw $25, 4($7)
-	beq $4, $24, testSN1
-	beq $4, $25, testSN2
-	j ladoD
-testSN1: lw $6, 4($5)
-	beq $6, $25, verMaior
-testSN2: beq $6, $24, verMaior
-	j ladoE
-verMaior: addi $4, $24, 0
-	jal insPilha
-	lw $4, 4($7)
-	jal insPilha
-	lui $6, 0x1009
-	addi $6, $6, 0x0b00
-	slt $4, $7, $6
-	lui $5, 0x1009
-	addi $5, $5, 0x0d00
-	bne $4, $0, contVM
-	addi $5, $5, 64
-contVM:	lui $6, 0x1009
-	addi $6, $6, 0x0d00
-	addi $6, $6, 128
-	addi $4, $0, 8
-	jal retPilha
-	sll $25, $3, 2
-	add $24, $25, $6
-	add $23, $25, $5
-	lw $24, 0($24)
-	lw $23, 0($23)
-	sub $25, $4, $24
-	add $25, $25, $23
-	addi $23, $3, 0
-	jal retPilha
-	sll $24, $3, 2
-	add $6, $24, $6
-	add $5, $24, $5
-	lw $6, 0($6)
-	lw $5, 0($5)
-	sub $24, $4, $6
-	add $24, $24, $5
-	slt $5, $24, $25
-	beq $5, $0, ladoE
-	j ladoD
-
+	sw $24, 0($7) # inverte os numeros da peca
+	sw $4, 4($7)
+	j contGiE
+	
 # tem que chegar aqui com:
 # $6 = endereco do contador
 # $7 = endereco da peca
 # $8 = endereco de destino
-joga:	addi $4, $7, 0
-	jal insPilha
-	addi $4, $8, 0
-	jal insPilha
-	jal retPontos
+jogaE:	 jal retPontos
 	
 	lui $8, 0x1009
 	addi $8, $8, 0x0200
@@ -256,32 +219,103 @@ joga:	addi $4, $7, 0
 	jal bordaRet
 	
 	jal retPilha
-	addi $17, $3, 0
+	addi $7, $3, 0
 	jal retPilha
 	addi $4, $3, 0
-	jal insPilha
-	addi $4, $17, 0
 	addi $5, $0, 0
 	addi $6, $0, 1
-	addi $7, $3, 0
 	jal moveP
-	lw $4, 0($17)
-	addi $4, $4, 20
-	sw $24, 0($17)
-	jal retPilha
-	lui $8, 0x1009
-	addi $8, $8, 0x0b00
-	slt $4, $3, $8
-	beq $4, $0, verCont
-	addi $8, $8, -0x0100
-verCont: lw $2, 240($8)
+	
 	jal passaVez	
 		
-fimJogada: lui $8, 0x1009
+fimJogadaE: lui $8, 0x1009
 	addi $8, $8, 0x0e00
-	lw $4, 28($8)
-	addi $4, $0, 0
-	sw $4, 28($8)
+	sw $0, 28($8)
+	jal retPilha
+	addi $2, $3, 0
+	
+	jal retPilha
+	addi $31, $3, 0
+	jr $31
+
+#--------------JOGA NA DIREITA-------------------
+# Rotina para jogar uma peca na direita
+# Entradas:	$7 endereco da peca
+# Saidas: $2 0 para ganhou e outro valor para nao ganhou
+# Usa (sem preservar): $8, $24, $25
+jogaDir: addi $4, $31, 0
+	addi $2, $0, -1
+	jal insPilha
+	
+	lui $8, 0x1009
+	addi $8, $8, 0x1800	 # enderecos das pedras da direita
+	lw $4, 4($8) # ler o numero da ponta
+	lw $24, 0($7) 
+	bne $4, $24, giraPecaD # compara se os números sao iguais
+	lw $24, 4($7)
+	sw $24, 4($8) # grava o novo numero da ponta
+	
+contGiD:	lui $5, 0x1009
+	addi $5, $5, 0x0b00
+	lui $6, 0x1009
+	addi $6, $6, 0x0d00
+	addi $6, $6, 64
+	slt $4, $7, $5
+	beq $4, $0, verContD
+	addi $6, $6, -64
+	addi $5, $5, -0x0100
+verContD: lw $4, 240($5)
+	addi $4, $4, -1
+	sw $4, 240($5)
+	jal insPilha
+	lw $5, 0($8)
+	add $4, $5, $8 # endereco de destino
+	jal insPilha
+	addi $5, $5, 20
+	sw $5, 0($8) # atualiza a posicao do proximo endereco
+	addi $4, $7, 0
+	jal insPilha
+	j jogaD
+	
+giraPecaD: sw $24, 4($8) # grava o novo numero da ponta
+	addi $4, $24, 0
+	lw $24, 4($7)
+	sw $24, 0($7) # inverte os numeros da peca
+	sw $4, 4($7)
+	j contGiD
+	
+# tem que chegar aqui com:
+# $6 = endereco do contador
+# $7 = endereco da peca
+# $8 = endereco de destino
+jogaD:	 jal retPontos
+	
+	lui $8, 0x1009
+	addi $8, $8, 0x0200
+	lw $8, 0($8)
+	lw $4, 8($7)
+	addi $4, $4, -3
+	lw $5, 12($7)
+	addi $5, $5, -12
+	addi $6, $0, 26
+	addi $7, $0, 55
+	jal bordaRet
+	
+	jal retPilha
+	addi $7, $3, 0
+	jal retPilha
+	addi $4, $3, 0
+	addi $5, $0, 0
+	addi $6, $0, 1
+	jal moveP
+	
+	jal passaVez	
+		
+fimJogadaD: lui $8, 0x1009
+	addi $8, $8, 0x0e00
+	sw $0, 28($8)
+	jal retPilha
+	addi $2, $3, 0
 	
 	jal retPilha
 	addi $31, $3, 0
@@ -308,7 +342,7 @@ trancou: jal retPilha
 #		$6 maior numero
 #		#7 endereco
 # Saidas:	$2 Endereco da peca ou -1 se nao achar
-# Usa (sem preservar): $24, $25
+# Usa (sem preservar): $25
 procPeca: addi $4, $31, 0
 	jal insPilha
 	addi $2, $0, -1
@@ -318,7 +352,7 @@ procPeca: addi $4, $31, 0
 	addi $5, $6, 0
 	addi $6, $4, 0
 	addi $4, $0, 12
-trocP:	beq $4, $0, fimProcP
+trocP: beq $4, $0, fimProcP
 	lw $25, 0($7)
 	bne $25, $5, pxProcP
 	lw $25, 4($7)
@@ -342,57 +376,95 @@ fimProcP: jal retPilha
 escMP:	addi $4, $31, 0
 	jal insPilha
 	
-	lui $6, 0x1009
-	addi $6, $6, 0x1004
-	lw $7 0($6) # numero da ponta esquerda
-	slt $25, $7, $0
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	lui $8, 0x1009
+	addi $8, $8, 0x1004
+	lw $5 0($8) # numero da ponta esquerda
+	slt $25, $5, $0
 	bne $25, $0, primJog # testa se e a primeira jogada
-	
-	addi $6, $6, 0x0800
-	lw $6 0($6)# numero da ponta direita
-	beq $6, $7, testOutP
-	slt $25, $6, $7
-	addi $4, $6, 0
+	addi $8, $8, 0x0800
+	lw $6 0($8)# numero da ponta direita
+	beq $6, $5, procCarr
+	slt $25, $5, $6
+	addi $4, $5, 0
 	beq $25, $0, invM
-	addi $4, $7, 0
-	addi $7, $6, 0
-	addi $6, $4, 0
-invM:	lui $5, 0x1009
-	addi $5, $5, 0x0d00
-	addi $5, $5, 64
-	sll $25, $7, 2
-	add $25, $25, $5
+	addi $4, $6, 0
+	addi $6, $5, 0
+	addi $5, $4, 0
+invM:	lui $8, 0x1009
+	addi $8, $8, 0x0d40
+	sll $25, $5, 2
+	add $25, $25, $8
 	lw $24, 0($25)
 	beq $24, $0, naoTPE
 	lw $23, 32($25)
-	bne $23, $7, testOutP
-	addi $5, $7, 0
-	addi $6, $7, 0
-	addi $4, $7, 0
+	bne $23, $5, testOutP
+	addi $6, $5, 0
 	lui $7, 0x1009
 	addi $7, $7, 0x0b00
 	jal procPeca
 	j fimEscMP
 	
-naoTPE: addi $7, $6, 0
-	lui $5, 0x1009
-	addi $5, $5, 0x0d00
-	addi $5, $5, 64
-	sll $25, $7, 2
-	add $25, $25, $5
+procCarr: jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
+	j testOutP
+	
+naoTPE: sll $25, $6, 2
+	add $25, $25, $8
 	lw $24, 0($25)
-	beq $24, $0, fimEscMP
+	beq $24, $0, naoTPE
 	lw $23, 32($25)
-	bne $23, $7, testOutP
-	addi $5, $7, 0
-	addi $6, $7, 0
-	addi $4, $7, 0
+	bne $23, $6, testOutP
+	addi $5, $6, 0
 	lui $7, 0x1009
 	addi $7, $7, 0x0b00
 	jal procPeca
 	j fimEscMP
+
+		
+testOutP: lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	addi $14, $7, 0
+	lui $8, 0x1009
+	addi $8, $8, 0x1004
+	lw $5 248($7) # maior
+	lw $17 252($7) # segundo maior
+	addi $16, $5, 0 # maior
+	lw $4 0($8) # numero da ponta esquerda
+	addi $15, $4, 0 # numero da ponta esquerda
+	addi $8, $8, 0x0800
+	lw $6 0($8)# numero da ponta direita
+	addi $16, $6, 0 # numero da ponta direita
+	bne $6, $5, proc1
+	addi $6, $4, 0
+proc1:	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
 	
-testOutP: addi $5, $7, 0 
+	
+	addi $5, $17, 0
+	addi $6, $15, 0
+	addi $6, $15, 0
+	bne $6, $5, proc2
+	addi $6, $4, 0
+proc2:	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
+	
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	lui $8, 0x1009
+	addi $8, $8, 0x1004
+	lw $5 0($8) # numero da ponta esquerda
+	addi $8, $8, 0x0800
+	lw $6 0($8)# numero da ponta direita
+proc3:	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
+	
+	
 	lui $7, 0x1009
 	addi $7, $7, 0x0b00
 	addi $4, $7, 0 
@@ -553,7 +625,7 @@ fimEscC: jal retPilha
 	jr $31
 	
 #-----------PROCURA CARROCA--------------
-# Rotina para o computador escolher uma carroca
+# Rotina para o computador procurar  uma carroca
 # Entradas:	$5 quantas pecas tem a carroca
 #		$6 carroca maior ou igual a que
 # Saidas:	$2 endereco da carroca
@@ -716,13 +788,21 @@ verCaracter: lw $4, 4($4)
 	j lerTecl
 	
 primeiraE: addi $7, $9, 0
+	addi $4, $9, 0
+	jal insPilha
 	addi $5, $0, 0
 	jal pecaErrada
+	jal retPilha
+	addi $9, $3, 0
 	beq $2, $0, lerTecl
 	j primeira
 primeiraD: addi $7, $9, 0
+	addi $4, $9, 0
+	jal insPilha
 	addi $5, $0, 1
 	jal pecaErrada
+	jal retPilha
+	addi $9, $3, 0
 	beq $2, $0, lerTecl
 	j primeira
 	
@@ -784,39 +864,16 @@ primeira: lui $8, 0x1009
 moveq:	jal retPilha
 	addi $8, $0, 'q'
 	beq $8, $3, ladoEsq
-	addi $5, $0, 1
-	addi $6, $0, 0
 	addi $7, $9, 0
-	jal jogaPeca
+	jal jogaDir
 	j fimSel
 	
 ladoEsq: addi $5, $0, 0
 	addi $6, $0, 0
 	addi $7, $9, 0
-	jal jogaPeca
-
-char_e:	lui $8, 0x1009
-	addi $8, $8, 0x0e00
-	lw $4, 24($8)
-	bne $4, $0, moveq
-	addi $5, $0, 12
-	bne $11, $5, moveq
-	addi $11, $11, -1
-	sw $11, 240($13)
-	addi $4, $8, 0
-	addi $7, $9, 0
-	addi $5, $0, 0
-	addi $6, $0, 1
-	jal moveP
+	jal jogaEsq
 	j fimSel
-	
-redPeca: lui $9, 0x1009
-	addi $9, $9, 0x0a00
-	lw $10, 240($9)
-	addi $10, $10, -1
-	beq $9, $0, vGanhou
-	sw $10, 240($9)
-	
+
 fimSel:	jal retPilha
 	addi $31, $3, 0
 	jr $31
@@ -1388,6 +1445,13 @@ testPEE: lw $5, 4($4)
 	beq $5, $6, taCerta
 	addi $5, $0, 0
 	jal indAmarelo
+	lui $4, 0x1009
+	addi $4, $4, 0x0e00
+	addi $7, $4, -0x0b00
+	lw $7, 32($4)
+	lw $5, 24($4)
+	lw $4, 20($4)
+	jal indicaVez
 	j fimPErr
 taCerta: addi $2, $0, 1	
 fimPErr: jal retPilha 
@@ -1404,6 +1468,7 @@ indAmarelo: addi $4, $31, 0
 	lui $6, 0x1009
 	addi $6, $6, 0x0300
 	addi $25, $5, 0
+	
 	lui $7, 0x1009
 	addi $7, $7, 0x0200
 	lw $7, 24($7)
@@ -1412,7 +1477,7 @@ indAmarelo: addi $4, $31, 0
 	beq $25, $0, pintaInd
 	lw $5, 28($6)
 pintaInd: jal indicaVez
-	addi $4, $0, 500
+	addi $4, $0, 100
 	jal atrasar
 fimAmarelo: jal retPilha 
 	addi $31, $3, 0
@@ -2742,6 +2807,42 @@ jCarroca: lui $4, 0x1009
 	addi $23, $23, -1
 	sw $23, 0($4)
 	jal retPilha
+	addi $31, $3, 0
+	jr $31
+	
+#--------IMPRIME PEDRAS-----------
+# Rotina para imprimir as pecas jogadas
+# Entrada: 
+# Saidas:
+# Usa sem preservar: $23, $24 e $25
+impPedras: addi $4, $31, 0
+	jal insPilha
+	addi $6, $0, 0
+	lui $7, 0x1009
+	addi $7, $7, 0x0e00
+	jal peca
+	
+	lui $7, 0x1009
+	addi $7, $7, 0x1008
+verPontE:	lw $5, 0($7)
+	slt $4, $5, $0
+	bne $4, $0, contImpD
+	addi $6, $0, 0
+	jal peca
+	addi $7, $2, 20
+	j verPontE
+	
+contImpD: lui $7, 0x1009
+	addi $7, $7, 0x1808
+verPontD:	lw $5, 0($7)
+	slt $4, $5, $0
+	bne $4, $0, fimImpP
+	addi $6, $0, 0
+	jal peca
+	addi $7, $2, 20
+	j verPontD
+	
+fimImpP:	jal retPilha
 	addi $31, $3, 0
 	jr $31
 
