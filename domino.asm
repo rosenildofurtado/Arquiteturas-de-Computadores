@@ -64,7 +64,7 @@ main: 	lui $4, 0x1009
 	jal passaVez
 	jal embaralhar
 	
-	addi $4, $0, 1
+	addi $4, $0, 0
 	beq $4, $0, pxJogada
 	jal passaVez
 	j compComeca
@@ -723,6 +723,11 @@ fimMP:	jal retPilha
 # Usa (sem preservar): $24, $25
 selPeca: addi $4, $31, 0
 	jal insPilha
+	lui $9, 0x1009
+	addi $9, $9, 0x0e00
+	lw $9, 0($9)
+	addi $5, $0, -1
+	beq $5, $9, jNaoPas
 	addi $5, $0, 0
 	jal temPeca
 	bne $2, $0, jNaoPas
@@ -768,7 +773,12 @@ verCaracter: lw $4, 4($4)
 	jal retPilha
 	j lerTecl
 	
-primeiraE: addi $7, $9, 0
+primeiraE: lui $7, 0x1009
+	addi $7, $7, 0x0e00
+	lw $7, 0($7)
+	addi $4, $0, -1
+	beq $4, $7, primeira
+	addi $7, $9, 0
 	addi $4, $9, 0
 	jal insPilha
 	addi $5, $0, 0
@@ -777,7 +787,12 @@ primeiraE: addi $7, $9, 0
 	addi $9, $3, 0
 	beq $2, $0, lerTecl
 	j primeira
-primeiraD: addi $7, $9, 0
+primeiraD: lui $7, 0x1009
+	addi $7, $7, 0x0e00
+	lw $7, 0($7)
+	addi $4, $0, -1
+	beq $4, $7, primeira
+	addi $7, $9, 0
 	addi $4, $9, 0
 	jal insPilha
 	addi $5, $0, 1
