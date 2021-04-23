@@ -69,8 +69,10 @@ main: 	lui $4, 0x1009
 	jal passaVez
 	j compComeca
 pxJogada: jal selPeca
+	beq $2, $0, vGanhou
 	jal impPedras
 compComeca: jal pecaComp
+	beq $2, $0, vPerdeu
 	jal impPedras
 	j pxJogada
 	
@@ -151,7 +153,8 @@ nCarroc: beq $4, $24, jLadEsq
 	j fimJogada
 
 	
-fimJogada: jal retPilha
+fimJogada: 
+	jal retPilha
 	addi $31, $3, 0
 	jr $31
 	
@@ -347,11 +350,11 @@ procPeca: addi $4, $31, 0
 	jal insPilha
 	addi $2, $0, -1
 	slt $4, $5, $6
-	bne $4, $0, trocP
+	bne $4, $0, ctrocP
 	addi $4, $5, 0
 	addi $5, $6, 0
 	addi $6, $4, 0
-	addi $4, $0, 12
+ctrocP:	addi $4, $0, 12
 trocP: beq $4, $0, fimProcP
 	lw $25, 0($7)
 	bne $25, $5, pxProcP
@@ -429,9 +432,11 @@ testOutP: lui $7, 0x1009
 	addi $14, $7, 0
 	lui $8, 0x1009
 	addi $8, $8, 0x1004
+	
 	lw $5 248($7) # maior
-	lw $17 252($7) # segundo maior
 	addi $16, $5, 0 # maior
+	lw $17 252($7) # segundo maior
+	
 	lw $4 0($8) # numero da ponta esquerda
 	addi $15, $4, 0 # numero da ponta esquerda
 	addi $8, $8, 0x0800
@@ -443,134 +448,112 @@ proc1:	jal procPeca
 	addi $4, $0, -1
 	bne $4, $2, fimEscMP
 	
-	
 	addi $5, $17, 0
 	addi $6, $15, 0
-	addi $6, $15, 0
+	addi $7, $14, 0
 	bne $6, $5, proc2
-	addi $6, $4, 0
+	addi $6, $16, 0
 proc2:	jal procPeca
 	addi $4, $0, -1
 	bne $4, $2, fimEscMP
 	
-	lui $7, 0x1009
-	addi $7, $7, 0x0b00
-	lui $8, 0x1009
-	addi $8, $8, 0x1004
-	lw $5 0($8) # numero da ponta esquerda
-	addi $8, $8, 0x0800
-	lw $6 0($8)# numero da ponta direita
+	addi $5, $16, 0
+	addi $6, $15, 0
+	addi $7, $14, 0
 proc3:	jal procPeca
 	addi $4, $0, -1
 	bne $4, $2, fimEscMP
 	
+	addi $5, $0, 6
+	addi $6, $15, 0
+	addi $7, $14, 0
+proc4:	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
+	addi $5, $0, 6
+	addi $6, $16, 0
+	addi $7, $14, 0
+proc5:	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
 	
-	lui $7, 0x1009
-	addi $7, $7, 0x0b00
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	lw $6 248($7)
-	jal procPeca
+	addi $5, $0, 5
+	addi $6, $15, 0
+	addi $7, $14, 0
+proc6:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
-	jal retPilha
-	addi $5, $3, 0 
-	jal retPilha
-	addi $7, $3, 0 
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	lw $6 252($7)
-	jal procPeca
+	bne $4, $2, fimEscMP
+	addi $5, $0, 5
+	addi $6, $16, 0
+	addi $7, $14, 0
+proc7:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
-	jal retPilha
-	addi $5, $3, 0 
-	jal retPilha
-	addi $7, $3, 0 
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	addi $6, $0, 6 
-	jal procPeca
+	bne $4, $2, fimEscMP
+	
+	addi $5, $0, 4
+	addi $6, $15, 0
+	addi $7, $14, 0
+proc8:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
-	jal retPilha
-	addi $5, $3, 0 
-	jal retPilha
-	addi $7, $3, 0 
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	addi $6, $0, 5
-	jal procPeca
+	bne $4, $2, fimEscMP
+	addi $5, $0, 4
+	addi $6, $16, 0
+	addi $7, $14, 0
+proc9:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
-	jal retPilha
-	addi $5, $3, 0 
-	jal retPilha
-	addi $7, $3, 0 
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	addi $6, $0, 4
-	jal procPeca
+	bne $4, $2, fimEscMP
+	
+	addi $5, $0, 3
+	addi $6, $15, 0
+	addi $7, $14, 0
+proc10:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
-	jal retPilha
-	addi $5, $3, 0 
-	jal retPilha
-	addi $7, $3, 0 
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	addi $6, $0, 3
-	jal procPeca
+	bne $4, $2, fimEscMP
+	addi $5, $0, 3
+	addi $6, $16, 0
+	addi $7, $14, 0
+proc11:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
-	jal retPilha
-	addi $5, $3, 0 
-	jal retPilha
-	addi $7, $3, 0 
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	addi $6, $0, 2
-	jal procPeca
+	bne $4, $2, fimEscMP
+	
+	addi $5, $0, 2
+	addi $6, $15, 0
+	addi $7, $14, 0
+proc12:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
-	jal retPilha
-	addi $5, $3, 0 
-	jal retPilha
-	addi $7, $3, 0 
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	addi $6, $0, 1
-	jal procPeca
+	bne $4, $2, fimEscMP
+	addi $5, $0, 2
+	addi $6, $16, 0
+	addi $7, $14, 0
+proc13:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
-	jal retPilha
-	addi $5, $3, 0 
-	jal retPilha
-	addi $7, $3, 0 
-	addi $4, $7, 0 
-	jal insPilha
-	addi $4, $5, 0 
-	jal insPilha
-	addi $6, $0, 0
-	jal procPeca
+	bne $4, $2, fimEscMP
+	
+	addi $5, $0, 1
+	addi $6, $15, 0
+	addi $7, $14, 0
+proc14:	jal procPeca
 	addi $4, $0, -1
-	bne $4, $2, retPilT 
+	bne $4, $2, fimEscMP
+	addi $5, $0, 1
+	addi $6, $16, 0
+	addi $7, $14, 0
+proc15:	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
+	
+	addi $5, $0, 0
+	addi $6, $15, 0
+	addi $7, $14, 0
+proc16:	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
+	addi $5, $0, 0
+	addi $6, $16, 0
+	addi $7, $14, 0
+proc17:	jal procPeca
+	addi $4, $0, -1
+	bne $4, $2, fimEscMP
 	
 primJog: lui $7, 0x1009
 	addi $7, $7, 0x0b00
@@ -592,8 +575,6 @@ priEncont: slt $7, $8, $0
 	addi $8, $8, -1
 	jal priEncont
 
-retPilT: jal retPilha
-	jal retPilha
 fimEscMP: jal retPilha
 	addi $31, $3, 0
 	jr $31
@@ -1448,10 +1429,11 @@ testPEE: lw $5, 4($4)
 	lui $4, 0x1009
 	addi $4, $4, 0x0e00
 	addi $7, $4, -0x0b00
-	lw $7, 32($4)
-	lw $5, 24($4)
-	lw $4, 20($4)
+	lw $7, 32($7)
+	lw $5, 24($7)
+	lw $4, 20($7)
 	jal indicaVez
+	addi $2, $0, 0	
 	j fimPErr
 taCerta: addi $2, $0, 1	
 fimPErr: jal retPilha 
