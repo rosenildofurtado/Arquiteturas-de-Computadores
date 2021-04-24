@@ -28,8 +28,8 @@
 .data 0x10090c00
 	.word -1 -1 4 13 0 -1 -1 24 13 0 -1 -1 44 13 0 -1 -1 64 13 0 # pecas do morto
 .data 0x10090d00
-	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peças e quantos pontos o jogador tem
-	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peças e quantos pontos o computador tem
+	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peÃ§as e quantos pontos o jogador tem
+	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peÃ§as e quantos pontos o computador tem
 	.word 8 8 8 8 8 8 8 # Total de pecas que estao no jogo
 .data 0x10090e00
 	.word -1 -1 226 108 1
@@ -43,7 +43,7 @@
 .data 0x10091800
 	.word 8 -1 -1 -1 246 128 1 -1 -1 266 108 1 -1 -1 286 128 1 -1 -1 306 108 1 -1 -1 326 128 1 -1 -1 346 108 1 
 	.word -1 -1 366 128 1 -1 -1 386 108 1 -1 -1 406 128 1 -1 -1 426 108 1 -1 -1 446 128 1 -1 -1 466 108 1 
-	.word -1 -1 486 128 0 -1 -1 466 148 0 -1 -1 486 168 0 -1 -1 446 188 0 -1 -1 426 168 3 -1 -1 406 188 3 
+	.word -1 -1 486 128 0 -1 -1 466 148 0 -1 -1 486 168 0 -1 -1 446 188 3 -1 -1 426 168 3 -1 -1 406 188 3 
 	.word -1 -1 386 168 3 -1 -1 366 188 3 -1 -1 346 168 3 -1 -1 326 188 3 -1 -1 306 168 3 -1 -1 286 188 3 
 	.word -1 -1 266 168 3 -1 -1 246 188 3 -1 -1 226 168 3
 
@@ -64,7 +64,7 @@ main: 	lui $4, 0x1009
 	jal passaVez
 	jal embaralhar
 	
-	addi $4, $0, 0
+	addi $4, $0, 1
 	beq $4, $0, pxJogada
 	jal passaVez
 	j compComeca
@@ -171,7 +171,7 @@ jogaEsq: addi $4, $31, 0
 	addi $8, $8, 0x1000	 # enderecos das pedras da direita
 	lw $4, 4($8) # ler o numero da ponta
 	lw $24, 0($7) 
-	bne $4, $24, giraPecE # compara se os n�meros sao iguais
+	bne $4, $24, giraPecE # compara se os números sao iguais
 	lw $24, 4($7)
 	sw $24, 4($8) # grava o novo numero da ponta
 	
@@ -254,7 +254,7 @@ jogaDir: addi $4, $31, 0
 	addi $8, $8, 0x1800	 # enderecos das pedras da direita
 	lw $4, 4($8) # ler o numero da ponta
 	lw $24, 0($7) 
-	bne $4, $24, giraPecaD # compara se os n�meros sao iguais
+	bne $4, $24, giraPecaD # compara se os números sao iguais
 	lw $24, 4($7)
 	sw $24, 4($8) # grava o novo numero da ponta
 	
@@ -738,14 +738,14 @@ jNaoPas:
 	lui $9, 0x1009
 	addi $9, $9, 0x0a00
 	addi $13, $9, 0
-	addi $10, $0, 0 # contador
+	addi $16, $0, 0 # contador
 	lw $11, 240($9)
 selProx: lw $12, 0($9)
 	slt $12, $12, $0 # ver se existe uma peca. -1 = nao tem
 	beq $12, $0, selRet
 	addi $9, $9, 20
 	j selProx # Se nao tem, checa a proxima posicao
-selRet:	addi $10, $10, 1
+selRet:	addi $16, $16, 1
 bordaPeca: lui $8, 0x1009
 	addi $8, $8, 0x0200
 	lw $8, 8($8)
@@ -805,13 +805,13 @@ primeiraD: lui $7, 0x1009
 char_a:	jal retPilha
 	addi $13, $9, 0
 	addi $7, $0, 1
-	slt $7, $7, $10
+	slt $7, $7, $16
 	beq $7, $0, lerTecl
 	addi $7, $0, -1
 selReduz: addi $9, $9, -20
 	lw $6, 0($9)
 	beq $6, $7, selReduz
-	addi $10, $10, -1
+	addi $16, $16, -1
 	j mudaSel
 	
 char_d:	jal retPilha
@@ -819,13 +819,13 @@ char_d:	jal retPilha
 	lui $6, 0x1009
 	addi $6, $6, 0x0a00
 	lw $7, 240($6)
-	slt $7, $10, $7
+	slt $7, $16, $7
 	beq $7, $0, lerTecl
 	addi $7, $0, -1
 selAum: addi $9, $9, 20
 	lw $6, 0($9)
-	beq $6, $7, selAum # testa se tem peça na posicao. -1 = nao tem
-	addi $10, $10, 1
+	beq $6, $7, selAum # testa se tem peÃ§a na posicao. -1 = nao tem
+	addi $16, $16, 1
 	j mudaSel
 	
 mudaSel: lui $8, 0x1009
@@ -1328,10 +1328,11 @@ fimMove: jal retPilha
 #		$7 end0
 # Saida:	$2
 # Usa (sem preservar): $25
-endPxy:	mul $25, $5, $6 # l*L
+endPxy:	mul $25, $5, 512 # l*L
 	add $25, $25, $4 # l*L+c
 	sll $25, $25, 2 # (l*L+c)*4
-	add $2, $25, $7 # Retorna a soma com o end0
+	lui $2, 0x1001
+	add $2, $2, $25 # Retorna a soma com o end0
 fimPxy:	jr $31 
 
 
@@ -1444,9 +1445,10 @@ testPEE: lw $5, 4($4)
 	lui $4, 0x1009
 	addi $4, $4, 0x0e00
 	addi $7, $4, -0x0b00
-	lw $7, 32($7)
+	
 	lw $5, 24($7)
 	lw $4, 20($7)
+	lw $7, 32($7)
 	jal indicaVez
 	addi $2, $0, 0	
 	j fimPErr
@@ -1772,14 +1774,14 @@ fimVez: jal retPilha
 	
 bordaRet: add $22, $0, $5 # j=$5
 	add $21, $0, $4 # i=$4
-	add $16, $0, $4 # i=$4
-	add $20, $7, $5 # py+tamy
-	add $19, $6, $4 # px+tamx
 	addi $4, $31, 0
 	jal insPilha
-	lui $7, 0x1001
-	addi $6, $0, 0x10090304 # quantas colunas tem na tela
-	lw $6, 0($6)
+	
+	addi $4, $21, 0
+	add $20, $7, $5 # py+tamy
+	add $19, $6, $21 # px+tamx
+	addi $6, $21, 0
+	
 	addi $23, $19, -1
 	addi $24, $20, -1
 	
@@ -1795,16 +1797,16 @@ bordi:	beq $21, $19, fimBordi
 contBi:	addi $21, $21, 1
 	j bordi
 	
-fimBordi: addi $4, $16, 0
+fimBordi: addi $4, $6, 0
 
 bordj:	beq $22, $20, fimBordj
 	addi $5, $22, 0
 	jal endPxy
 	sw $8, 0($2)
-	addi $4, $23, 0
+	addi $4, $19, 0
 	jal endPxy
 	sw $8, 0($2)
-	addi $4, $16, 0
+	addi $4, $6, 0
 	addi $22, $22, 1
 	j bordj
 fimBordj: jal retPilha 
@@ -2906,7 +2908,7 @@ contDis: addi $6, $0, 0x10090000
 	jal contPontos
 	addi $4, $5, 0
 	
-	addi $5, $0, 0 # esconde as pecas do computador
+	addi $5, $0, 1 # esconde as pecas do computador
 	
 	addi $6, $0, 0
 	lui $7, 0x1009
