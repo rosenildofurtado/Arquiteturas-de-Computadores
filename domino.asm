@@ -738,14 +738,14 @@ jNaoPas:
 	lui $9, 0x1009
 	addi $9, $9, 0x0a00
 	addi $13, $9, 0
-	addi $16, $0, 0 # contador
+	addi $27, $0, 0 # contador
 	lw $11, 240($9)
 selProx: lw $12, 0($9)
 	slt $12, $12, $0 # ver se existe uma peca. -1 = nao tem
 	beq $12, $0, selRet
 	addi $9, $9, 20
 	j selProx # Se nao tem, checa a proxima posicao
-selRet:	addi $16, $16, 1
+selRet:	addi $27, $27, 1
 bordaPeca: lui $8, 0x1009
 	addi $8, $8, 0x0200
 	lw $8, 8($8)
@@ -805,13 +805,13 @@ primeiraD: lui $7, 0x1009
 char_a:	jal retPilha
 	addi $13, $9, 0
 	addi $7, $0, 1
-	slt $7, $7, $16
+	slt $7, $7, $27
 	beq $7, $0, lerTecl
 	addi $7, $0, -1
 selReduz: addi $9, $9, -20
 	lw $6, 0($9)
 	beq $6, $7, selReduz
-	addi $16, $16, -1
+	addi $27, $27, -1
 	j mudaSel
 	
 char_d:	jal retPilha
@@ -819,13 +819,13 @@ char_d:	jal retPilha
 	lui $6, 0x1009
 	addi $6, $6, 0x0a00
 	lw $7, 240($6)
-	slt $7, $16, $7
+	slt $7, $27, $7
 	beq $7, $0, lerTecl
 	addi $7, $0, -1
 selAum: addi $9, $9, 20
 	lw $6, 0($9)
-	beq $6, $7, selAum # testa se tem peÃ§a na posicao. -1 = nao tem
-	addi $16, $16, 1
+	beq $6, $7, selAum # testa se tem peca na posicao. -1 = nao tem
+	addi $27, $27, 1
 	j mudaSel
 	
 mudaSel: lui $8, 0x1009
@@ -843,6 +843,8 @@ mudaSel: lui $8, 0x1009
 	lw $8, 8($8)
 	lw $4, 8($9)
 	lw $5, 12($9)
+	addi $6, $0, 26
+	addi $7, $0, 55
 	j bordaPeca
 	
 primeira: lui $8, 0x1009
@@ -870,7 +872,8 @@ ladoEsq: addi $5, $0, 0
 	jal jogaEsq
 	j fimSel
 
-fimSel:	jal retPilha
+fimSel:	addi $27, $0, 0
+	jal retPilha
 	addi $31, $3, 0
 	jr $31
 	
