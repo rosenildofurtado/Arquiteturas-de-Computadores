@@ -756,6 +756,8 @@ bordaPeca: lui $8, 0x1009
 	addi $6, $0, 26
 	addi $7, $0, 55
 	jal bordaRet
+	j lerTecl
+retLixo: jal retPilha	
 lerTecl: lui $4, 0xffff
 	lw $5, 0($4)
 	bne $5, $0, verCaracter
@@ -785,7 +787,7 @@ primeiraE: lui $7, 0x1009
 	jal pecaErrada
 	jal retPilha
 	addi $9, $3, 0
-	beq $2, $0, lerTecl
+	beq $2, $0, retLixo
 	j primeira
 primeiraD: lui $7, 0x1009
 	addi $7, $7, 0x0e00
@@ -799,7 +801,7 @@ primeiraD: lui $7, 0x1009
 	jal pecaErrada
 	jal retPilha
 	addi $9, $3, 0
-	beq $2, $0, lerTecl
+	beq $2, $0, retLixo
 	j primeira
 	
 char_a:	jal retPilha
