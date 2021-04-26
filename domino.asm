@@ -18,15 +18,15 @@
 	.word 420 23 220 0x00ff0000 0x0000ff00 # pontos do indica vez
 
 .data 0x10090a00
-	.word -1 -1 103 13 0 -1 -1 129 13 0 -1 -1 155 13 0 -1 -1 181 13 0 -1 -1 207 13 0 -1 -1 233 13 0 
-	.word -1 -1 259 13 0 -1 -1 285 13 0 -1 -1 311 13 0 -1 -1 337 13 0 -1 -1 363 13 0 -1 -1 389 13 0 # pecas do jogador
+	.word -1 -1 103 6 0 -1 -1 129 6 0 -1 -1 155 6 0 -1 -1 181 6 0 -1 -1 207 6 0 -1 -1 233 6 0 
+	.word -1 -1 259 6 0 -1 -1 285 6 0 -1 -1 311 6 0 -1 -1 337 6 0 -1 -1 363 6 0 -1 -1 389 6 0 # pecas do jogador
 	.word 12 0 # quantidad de pecas
 .data 0x10090b00
 	.word -1 -1 103 210 0 -1 -1 129 210 0 -1 -1 155 210 0 -1 -1 181 210 0 -1 -1 207 210 0 -1 -1 233 210 0 
 	.word -1 -1 259 210 0 -1 -1 285 210 0 -1 -1 311 210 0 -1 -1 337 210 0 -1 -1 363 210 0 -1 -1 389 210 0 # pecas do computador
 	.word 12 1 # quantidad de pecas
 .data 0x10090c00
-	.word -1 -1 4 13 0 -1 -1 24 13 0 -1 -1 44 13 0 -1 -1 64 13 0 # pecas do morto
+	.word -1 -1 4 6 0 -1 -1 24 6 0 -1 -1 44 6 0 -1 -1 64 6 0 -1 # pecas do morto
 .data 0x10090d00
 	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peÃ§as e quantos pontos o jogador tem
 	.word 0 0 0 0 0 0 0 0 -1 -1 -1 -1 -1 -1 -1 -1 # quantidade de peÃ§as e quantos pontos o computador tem
@@ -59,10 +59,11 @@ main: 	lui $4, 0x1009
 	addi $6, $6, 0x0200 # cor do background
 	lw $6, 0($6)
 	jal bgColor # Background verde	
-	jal strMorto
-	jal numeros # mostra os numeros de 1 a 12
+	
+	#jal numeros # mostra os numeros de 1 a 12
 	jal passaVez
 	jal embaralhar
+	jal strMorto # mostra a palavra morto
 	
 	addi $4, $0, 1
 	beq $4, $0, pxJogada
@@ -76,6 +77,7 @@ compComeca: jal pecaComp
 	jal impPedras
 	j pxJogada
 	
+contPont: 
 vGanhou: j fim
 vPerdeu: j fim
 
@@ -334,7 +336,12 @@ fimJogadaD: lui $8, 0x1009
 trancou: jal retPilha
 	addi $4, $31, 0
 	jal insPilha
-	
+	jal mostraPed
+	addi $5, $0, 0
+	jal indAmarelo
+	addi $5, $0, 1
+	jal indAmarelo
+	j contPont
 	jal retPilha
 	addi $31, $3, 0
 	jr $31
@@ -2646,6 +2653,62 @@ letraT:	addi $8, $0, 0x10090200
 saiLT:	jal retPilha 
 	addi $31, $3, 0
 	jr $31
+	
+#-----------------LETRA A16----------------
+# Rotina para desenhar a letra T
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=escala
+# Usa sem preservar: $9, $21, $22, $23
+letraA16:	addi $8, $0, 0x10090200	
+	lw $8, 36($8)
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 0
+	addi $5, $23, 3
+	addi $6, $0, 2
+	addi $7, $0, 13
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 1
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 0
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 9
+	addi $5, $23, 3
+	addi $6, $0, 2
+	addi $7, $0, 13
+	jal retang
+	addi $4, $9, 8
+	addi $5, $23, 1
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 7
+	addi $5, $23, 0
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 0
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 8
+	addi $6, $0, 7
+	addi $7, $0, 1
+	jal retang
+	
+saiLA16:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
 
 #--------------NUMEROS---------------	
 numeros: addi $4, $31, 0
@@ -2710,23 +2773,23 @@ numeros: addi $4, $31, 0
 strMorto: addi $4, $31, 0
 	jal insPilha
 	addi $4, $0, 30
-	addi $5, $0, 3
+	addi $5, $0, 22
 	jal letraM
 	
 	addi $4, $0, 36
-	addi $5, $0, 3
+	addi $5, $0, 22
 	jal num0
 	
 	addi $4, $0, 42
-	addi $5, $0, 3
+	addi $5, $0, 22
 	jal letraR
 	
 	addi $4, $0, 48
-	addi $5, $0, 3
+	addi $5, $0, 22
 	jal letraT
 	
 	addi $4, $0, 54
-	addi $5, $0, 3
+	addi $5, $0, 22
 	jal num0
 	
 	jal retPilha 
@@ -2849,6 +2912,45 @@ verPontD:	lw $5, 0($7)
 fimImpP:	jal retPilha
 	addi $31, $3, 0
 	jr $31
+
+#--------MOSTRA PEDRAS-----------
+# Rotina para mostrar as outras pedras
+# Entrada: 
+# Saidas:
+# Usa sem preservar: $23, $24 e $25
+mostraPed: addi $4, $31, 0
+	jal insPilha
+	
+	lui $7, 0x1009
+	addi $7, $7, 0x0c00
+mostraC:	lw $5, 0($7)
+	slt $4, $5, $0
+	bne $4, $0, contMostB
+	addi $6, $0, 0
+	jal peca
+	addi $7, $2, 20
+	j mostraC
+	
+contMostB:	addi $4, $0, 12
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+mostraB: beq $4, $0, fimMostP
+	jal insPilha
+	lw $5, 0($7)
+	slt $4, $5, $0
+	bne $4, $0, contMost
+	addi $6, $0, 0
+	jal peca
+	addi $7, $2, 0
+contMost:	addi $7, $7, 20
+	jal retPilha
+	addi $4, $3, -1
+	j mostraB
+	
+fimMostP:	jal retPilha
+	addi $31, $3, 0
+	jr $31
+
 
 #---------DISTRIBUIR-------------	
 # Embaralha e distribui as pecas
