@@ -78,7 +78,18 @@ compComeca: jal pecaComp
 	j pxJogada
 	
 contPont: 
-vGanhou: j fim
+vGanhou: addi $10, $0, 100
+	addi $8, $0, 0
+	addi $11, $0, 50
+	addi $4, $10, 0
+	addi $5, $11, 0
+	addi $6, $0, 310
+	addi $7, $0, 30
+	jal retang
+	addi $5, $10, 50
+	addi $6, $11, 5
+	jal voceGanhou
+	j fim
 vPerdeu: j fim
 
 fim:	addi $2, $0, 10
@@ -566,21 +577,57 @@ primJog: lui $7, 0x1009
 	addi $7, $7, 0x0b00
 	lw $5 248($7)
 	lw $6 252($7)
+	addi $16, $5, 0
+	addi $17, $6, 0
 	jal procPeca
 	addi $4, $0, -1
 	bne $2, $4, fimEscMP
+	
 	addi $8, $0, 6
 priEncont: slt $7, $8, $0
-	bne $7, $0, fimEscMP
+	bne $7, $0, contSM
+	beq $16, $8, contMai	
+	lui $4, 0x1009
+	addi $4, $4, 0x0d40
+	sll $5, $8, 2
+	add $4, $4, $5
+	lw $4, 0($4)
+	addi $5, $0, 3
+	slt $5, $4, $5
+	bne $5, $0, contMai
+	
 	lui $7, 0x1009
 	addi $7, $7, 0x0b00
-	lw $5 248($7)
-	lw $6 252($7)
+	addi $5, $16, 0
+	addi $6, $8, 0
 	jal procPeca
 	addi $4, $0, -1
 	bne $2, $4, fimEscMP
-	addi $8, $8, -1
+contMai:	addi $8, $8, -1
 	jal priEncont
+	
+contSM: addi $8, $0, 6
+priEncontM: slt $7, $8, $0
+	bne $7, $0, contSM
+	beq $16, $8, contMen
+	lui $4, 0x1009
+	addi $4, $4, 0x0d40
+	sll $5, $8, 2
+	add $4, $4, $5
+	lw $4, 0($4)
+	addi $5, $0, 3
+	slt $5, $4, $5
+	bne $5, $0, contMen
+	
+	lui $7, 0x1009
+	addi $7, $7, 0x0b00
+	addi $5, $16, 0
+	addi $6, $8, 0
+	jal procPeca
+	addi $4, $0, -1
+	bne $2, $4, fimEscMP
+contMen:	addi $8, $8, -1
+	jal priEncontM
 
 fimEscMP: jal retPilha
 	addi $31, $3, 0
@@ -2657,10 +2704,9 @@ saiLT:	jal retPilha
 #-----------------LETRA A16----------------
 # Rotina para desenhar a letra T
 # Entrada: $4, $5, $6, onde:
-#	$4 = px, $5=py, $6=escala
-# Usa sem preservar: $9, $21, $22, $23
-letraA16:	addi $8, $0, 0x10090200	
-	lw $8, 36($8)
+#	$4 = px, $5=py, $6=cor
+# Usa sem preservar: $8, $9 e $23
+letraA16:	addi $8, $6, 0
 	addi $9, $4, 0	
 	addi $23, $5, 0
 	addi $4, $31, 0
@@ -2707,6 +2753,172 @@ letraA16:	addi $8, $0, 0x10090200
 	jal retang
 	
 saiLA16:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
+#-----------------LETRA C16----------------
+# Rotina para desenhar a letra T
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=cor
+# Usa sem preservar: $8, $9 e $23
+letraC16:	addi $8, $6, 0
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 0
+	addi $5, $23, 3
+	addi $6, $0, 2
+	addi $7, $0, 10
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 1
+	addi $6, $0, 2
+	addi $7, $0, 3
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 0
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 11
+	addi $6, $0, 2
+	addi $7, $0, 3
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 14
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 0
+	addi $6, $0, 4
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 15
+	addi $6, $0, 4
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 8
+	addi $5, $23, 0
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 9
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 10
+	addi $5, $23, 2
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 8
+	addi $5, $23, 14
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 9
+	addi $5, $23, 13
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 10
+	addi $5, $23, 12
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	
+saiLC16:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
+#-----------------LETRA D16----------------
+# Rotina para desenhar a letra T
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=cor
+# Usa sem preservar: $8, $9 e $23
+letraD16:	addi $8, $6, 0
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 0
+	addi $5, $23, 0
+	addi $6, $0, 2
+	addi $7, $0, 16
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 0
+	addi $6, $0, 7
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 15
+	addi $6, $0, 7
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 8
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 8
+	addi $5, $23, 14
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 9
+	addi $5, $23, 1
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 9
+	addi $5, $23, 13
+	addi $6, $0, 1
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 10
+	addi $5, $23, 2
+	addi $6, $0, 1
+	addi $7, $0, 12
+	jal retang
+	addi $4, $9, 11
+	addi $5, $23, 4
+	addi $6, $0, 1
+	addi $7, $0, 8
+	jal retang
+	
+saiLD16:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
+#-----------------VOCE GANHOU----------------
+# Rotina para desenhar a frase voce ganhou
+# Entrada: $5, $6, onde:
+#	$5 = px, $6=py
+# Usa sem preservar: $8, $9 e $23
+voceGanhou:	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
+	addi $8, $6, 0
+	addi $12, $5, 0	
+	addi $13, $6, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $5, $12, 0
+	addi $6, $13, 0
+	jal letraA16
+	addi $5, $12, 12
+	addi $6, $13, 0
+	jal letraD16
+	addi $5, $12, 24
+	addi $6, $13, 0
+	jal letraC16
+	
+fimVG:	jal retPilha 
 	addi $31, $3, 0
 	jr $31
 
