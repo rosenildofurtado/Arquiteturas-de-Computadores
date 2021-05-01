@@ -67,6 +67,9 @@ main: 	lui $4, 0x1009
 	
 	addi $4, $0, 1
 	beq $4, $0, pxJogada
+	lui $5, 0x1009
+	addi $5, $5, 0x0e00 # ler o numeros de pontos do jogador
+	sw $4, 24($5)
 	jal passaVez
 	j compComeca
 pxJogada: jal selPeca
@@ -115,6 +118,9 @@ vPerdeu: jal impPedras
 	addi $6, $0, 310
 	addi $7, $0, 50
 	jal retang
+	addi $5, $10, 50
+	addi $6, $11, 5
+	jal vocePerdeu
 	j fim
 
 fim:	addi $2, $0, 10
@@ -1571,7 +1577,7 @@ indAmarelo: addi $4, $31, 0
 	beq $25, $0, pintaInd
 	lw $5, 28($6)
 pintaInd: jal indicaVez
-	addi $4, $0, 100
+	addi $4, $0, 200
 	jal atrasar
 fimAmarelo: jal retPilha 
 	addi $31, $3, 0
@@ -2980,7 +2986,7 @@ letraE16:	addi $8, $6, 0
 	addi $4, $9, 9
 	addi $5, $23, 14
 	addi $6, $0, 1
-	addi $7, $0, 12
+	addi $7, $0, 2
 	jal retang
 	addi $4, $9, 10
 	addi $5, $23, 1
@@ -3059,6 +3065,81 @@ letraN16:	addi $8, $6, 0
 	jal retang
 	
 saiLN16:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+	
+#-----------------LETRA O16----------------
+# Rotina para desenhar a letra O
+# Entrada: $4, $5, $6, onde:
+#	$4 = px, $5=py, $6=cor
+# Usa sem preservar: $8, $9 e $23
+letraO16:	addi $8, $6, 0
+	addi $9, $4, 0	
+	addi $23, $5, 0
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $9, 0
+	addi $5, $23, 3
+	addi $6, $0, 2
+	addi $7, $0, 10
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 1
+	addi $6, $0, 2
+	addi $7, $0, 3
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 0
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 1
+	addi $5, $23, 11
+	addi $6, $0, 2
+	addi $7, $0, 3
+	jal retang
+	addi $4, $9, 2
+	addi $5, $23, 14
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 0
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 4
+	addi $5, $23, 15
+	addi $6, $0, 3
+	addi $7, $0, 1
+	jal retang
+	addi $4, $9, 7
+	addi $5, $23, 0
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 7
+	addi $5, $23, 14
+	addi $6, $0, 2
+	addi $7, $0, 2
+	jal retang
+	addi $4, $9, 8
+	addi $5, $23, 1
+	addi $6, $0, 2
+	addi $7, $0, 3
+	jal retang
+	addi $4, $9, 8
+	addi $5, $23, 12
+	addi $6, $0, 2
+	addi $7, $0, 3
+	jal retang
+	addi $4, $9, 9
+	addi $5, $23, 3
+	addi $6, $0, 2
+	addi $7, $0, 10
+	jal retang
+	
+saiLO16:	jal retPilha 
 	addi $31, $3, 0
 	jr $31
 	
@@ -3308,17 +3389,17 @@ letraV16:	addi $8, $6, 0
 	addi $7, $0, 5
 	jal retang
 	addi $4, $9, 7
-	addi $5, $23, 10
-	addi $6, $0, 1
-	addi $7, $0, 5
-	jal retang
-	addi $4, $9, 8
 	addi $5, $23, 7
 	addi $6, $0, 1
 	addi $7, $0, 5
 	jal retang
-	addi $4, $9, 9
+	addi $4, $9, 8
 	addi $5, $23, 4
+	addi $6, $0, 1
+	addi $7, $0, 5
+	jal retang
+	addi $4, $9, 9
+	addi $5, $23, 1
 	addi $6, $0, 1
 	addi $7, $0, 5
 	jal retang
@@ -3385,7 +3466,7 @@ acentoEx16:	addi $8, $6, 0
 	addi $4, $9, 1
 	addi $5, $23, 1
 	addi $6, $0, 1
-	addi $7, $0, 3
+	addi $7, $0, 7
 	jal retang
 	addi $4, $9, 2
 	addi $5, $23, 0
@@ -3427,44 +3508,48 @@ voceGanhou:	addi $12, $5, 0
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraV16
-	addi $4, $12, 12
+	addi $4, $12, 13
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraO16
+	addi $4, $12, 26
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraC16
-	addi $4, $12, 24
+	addi $4, $12, 39
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraE16
-	addi $4, $12, 24
+	addi $4, $12, 39
 	addi $5, $13, -4
 	addi $6, $8, 0
 	jal acentoC16
-	addi $4, $12, 48
+	addi $4, $12, 65
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraV16
 	
-	addi $4, $12, 60
+	addi $4, $12, 78
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraE16
-	addi $4, $12, 72
+	addi $4, $12, 91
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraN16
-	addi $4, $12, 84
+	addi $4, $12, 104
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraC16
-	addi $4, $12, 96
+	addi $4, $12, 117
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraE16
-	addi $4, $12, 108
+	addi $4, $12, 130
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal letraU16
-	addi $4, $12, 120
+	addi $4, $12, 143
 	addi $5, $13, 0
 	addi $6, $8, 0
 	jal acentoEx16
@@ -3472,6 +3557,72 @@ voceGanhou:	addi $12, $5, 0
 fimVG:	jal retPilha 
 	addi $31, $3, 0
 	jr $31
+
+#-----------------VOCE PERDEU----------------
+# Rotina para desenhar a frase voce perdeu
+# Entrada: $5, $6, onde:
+#	$5 = px, $6=py
+# Usa sem preservar: $8, $9 e $23
+vocePerdeu:	addi $12, $5, 0	
+	addi $13, $6, 0
+	addi $8, $0, 0x10090200	
+	lw $8, 8($8)
+	addi $4, $31, 0
+	jal insPilha
+	addi $4, $12, 0
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraV16
+	addi $4, $12, 13
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraO16
+	addi $4, $12, 26
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraC16
+	addi $4, $12, 39
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraE16
+	addi $4, $12, 39
+	addi $5, $13, -4
+	addi $6, $8, 0
+	jal acentoC16
+	addi $4, $12, 65
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraP16
+	
+	addi $4, $12, 78
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraE16
+	addi $4, $12, 91
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraR16
+	addi $4, $12, 104
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraD16
+	addi $4, $12, 117
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraE16
+	addi $4, $12, 130
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal letraU16
+	addi $4, $12, 143
+	addi $5, $13, 0
+	addi $6, $8, 0
+	jal acentoEx16
+	
+fimVP:	jal retPilha 
+	addi $31, $3, 0
+	jr $31
+
 
 #--------------NUMEROS---------------	
 numeros: addi $4, $31, 0
